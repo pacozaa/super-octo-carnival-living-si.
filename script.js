@@ -19,10 +19,13 @@
   const REPRODUCTION_COST = 75;
   const TICK_DAMAGE = 0.22;
   const ORGANISM_MIN_SAFETY_RADIUS = 52;
+  const SAFETY_RADIUS_VISION_FACTOR = 0.95;
   const HUNTER_REPRODUCTION_ENERGY = 185;
   const HUNTER_REPRODUCTION_COST = 82;
   const HUNTER_SPAWN_INTERVAL = 720;
   const MIN_POPULATION_FOR_HUNTER_SPAWN = 85;
+  const MIN_EVENT_INTERVAL = 800;
+  const EVENT_INTERVAL_VARIANCE = 540;
   const HUNTER_MIN_SPEED = 1.05;
   const HUNTER_MAX_SPEED = 1.75;
   const HUNTER_MIN_SIZE = 6;
@@ -30,6 +33,9 @@
   const HUNTER_MIN_VISION = 90;
   const HUNTER_MAX_VISION = 175;
   const HUNTER_BASE_DRAIN = 28;
+  const HUNTER_SIZE_DRAIN_FACTOR = 1;
+  const PREY_SIZE_SCORE_WEIGHT = 12;
+  const MIN_PREY_DISTANCE = 10;
 
   const random = (min, max) => min + Math.random() * (max - min);
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
@@ -144,7 +150,7 @@
       this.season = 0.45 + 0.35 * Math.sin(this.tick * 0.004);
       if (this.tick >= this.nextEventTick) {
         this.event = pickClimateEvent();
-        this.nextEventTick = this.tick + 800 + Math.floor(random(0, 540));
+        this.nextEventTick = this.tick + MIN_EVENT_INTERVAL + Math.floor(random(0, EVENT_INTERVAL_VARIANCE));
       }
       for (let y = 0; y < GRID_H; y++) {
         for (let x = 0; x < GRID_W; x++) {
@@ -246,7 +252,7 @@
     findThreat(hunters) {
       let threat = null;
       let bestDistance = Infinity;
-      const safetyRadius = Math.max(ORGANISM_MIN_SAFETY_RADIUS, this.vision * 0.95);
+      const safetyRadius = Math.max(ORGANISM_MIN_SAFETY_RADIUS, this.vision * SAFETY_RADIUS_VISION_FACTOR);
       for (const hunter of hunters) {
         const dist = distance(this.x, this.y, hunter.x, hunter.y);
         if (dist < safetyRadius && dist < bestDistance) {
@@ -318,7 +324,7 @@
         g: this.species.g,
         b: this.species.b
       }, env.event.mutation);
-      const maybeNewSpecies = colorDistance(mutated, this.species) > 24 || chance(0.01 * env.event.mutation);
+      const maybeNewSpecies = colorDistance(mutated, this.species) > 24 || chance(0.01 * Math.max(1, env.event.mutation));
       const species = maybeNewSpecies ? createSpecies(mutated) : this.species;
       return new Organism(
         clamp(this.x + random(-10, 10), 1, WORLD_WIDTH - 1),
@@ -375,7 +381,7 @@
       if (this.y <= 1 || this.y >= WORLD_HEIGHT - 1) this.vy *= -1;
 
       if (hunt && distanceSq(this.x, this.y, hunt.prey.x, hunt.prey.y) < (this.size + hunt.prey.size + 4) ** 2) {
-        const drain = Math.min(hunt.prey.energy, HUNTER_BASE_DRAIN + this.size);
+        const drain = Math.min(hunt.prey.energy, HUNTER_BASE_DRAIN + this.size * HUNTER_SIZE_DRAIN_FACTOR);
         hunt.prey.energy -= drain;
         this.energy += drain * 0.92;
       }
@@ -400,7 +406,7 @@
       for (const organism of organisms) {
         const dist = distance(this.x, this.y, organism.x, organism.y);
         if (dist > this.vision) continue;
-        const score = (organism.energy + organism.size * 12) / Math.max(dist, 10);
+        const score = (organism.energy + organism.size * PREY_SIZE_SCORE_WEIGHT) / Math.max(dist, MIN_PREY_DISTANCE);
         if (score > bestScore) {
           bestScore = score;
           best = { prey: organism };
