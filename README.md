@@ -4,7 +4,7 @@ Living Game Simulator.
 
 ## Run
 
-Open `/tmp/workspace/pacozaa/super-octo-carnival-living-si./index.html` in a browser.
+Open `index.html` in a browser.
 
 ## Features
 
