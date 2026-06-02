@@ -13,14 +13,23 @@
   const GRID_W = Math.floor(WORLD_WIDTH / CELL);
   const GRID_H = Math.floor(WORLD_HEIGHT / CELL);
   const BASE_ORGANISMS = 48;
-  const MAX_ORGANISMS = 420;
+  const MAX_ORGANISMS = 450;
   const MAX_HUNTERS = 10;
   const REPRODUCTION_ENERGY = 170;
   const REPRODUCTION_COST = 75;
   const TICK_DAMAGE = 0.22;
+  const ORGANISM_MIN_SAFETY_RADIUS = 52;
   const HUNTER_REPRODUCTION_ENERGY = 185;
   const HUNTER_REPRODUCTION_COST = 82;
   const HUNTER_SPAWN_INTERVAL = 720;
+  const MIN_POPULATION_FOR_HUNTER_SPAWN = 85;
+  const HUNTER_MIN_SPEED = 1.05;
+  const HUNTER_MAX_SPEED = 1.75;
+  const HUNTER_MIN_SIZE = 6;
+  const HUNTER_MAX_SIZE = 9.5;
+  const HUNTER_MIN_VISION = 90;
+  const HUNTER_MAX_VISION = 175;
+  const HUNTER_BASE_DRAIN = 28;
 
   const random = (min, max) => min + Math.random() * (max - min);
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
@@ -237,7 +246,7 @@
     findThreat(hunters) {
       let threat = null;
       let bestDistance = Infinity;
-      const safetyRadius = Math.max(52, this.vision * 0.95);
+      const safetyRadius = Math.max(ORGANISM_MIN_SAFETY_RADIUS, this.vision * 0.95);
       for (const hunter of hunters) {
         const dist = distance(this.x, this.y, hunter.x, hunter.y);
         if (dist < safetyRadius && dist < bestDistance) {
@@ -335,9 +344,9 @@
       this.energy = random(92, 125);
       this.age = 0;
       this.generation = generation;
-      this.speed = random(1.05, 1.75);
-      this.size = random(6, 9.5);
-      this.vision = random(90, 175);
+      this.speed = random(HUNTER_MIN_SPEED, HUNTER_MAX_SPEED);
+      this.size = random(HUNTER_MIN_SIZE, HUNTER_MAX_SIZE);
+      this.vision = random(HUNTER_MIN_VISION, HUNTER_MAX_VISION);
       this.vx = random(-1, 1);
       this.vy = random(-1, 1);
     }
@@ -366,7 +375,7 @@
       if (this.y <= 1 || this.y >= WORLD_HEIGHT - 1) this.vy *= -1;
 
       if (prey && distanceSq(this.x, this.y, prey.x, prey.y) < (this.size + prey.size + 4) ** 2) {
-        const drain = Math.min(prey.energy, 28 + this.size);
+        const drain = Math.min(prey.energy, HUNTER_BASE_DRAIN + this.size);
         prey.energy -= drain;
         this.energy += drain * 0.92;
       }
@@ -485,7 +494,7 @@
           this.organisms.length = MAX_ORGANISMS;
         }
         if (this.organisms.length < 14) this.seedRescuePopulation();
-        if (this.time % HUNTER_SPAWN_INTERVAL === 0 && this.organisms.length > 85 && this.hunters.length < MAX_HUNTERS) {
+        if (this.time % HUNTER_SPAWN_INTERVAL === 0 && this.organisms.length > MIN_POPULATION_FOR_HUNTER_SPAWN && this.hunters.length < MAX_HUNTERS) {
           this.spawnHunters(1);
         }
       }
