@@ -357,9 +357,9 @@
 
     step(env, organisms, hunters) {
       this.age += 1;
-      const prey = this.findPrey(organisms);
-      if (prey) {
-        this.steer(prey, env.event.instability * 0.7);
+      const hunt = this.findPrey(organisms);
+      if (hunt) {
+        this.steer(hunt.prey, env.event.instability * 0.7);
       } else {
         this.vx += random(-0.08, 0.08);
         this.vy += random(-0.08, 0.08);
@@ -374,9 +374,9 @@
       if (this.x <= 1 || this.x >= WORLD_WIDTH - 1) this.vx *= -1;
       if (this.y <= 1 || this.y >= WORLD_HEIGHT - 1) this.vy *= -1;
 
-      if (prey && distanceSq(this.x, this.y, prey.x, prey.y) < (this.size + prey.size + 4) ** 2) {
-        const drain = Math.min(prey.energy, HUNTER_BASE_DRAIN + this.size);
-        prey.energy -= drain;
+      if (hunt && distanceSq(this.x, this.y, hunt.prey.x, hunt.prey.y) < (this.size + hunt.prey.size + 4) ** 2) {
+        const drain = Math.min(hunt.prey.energy, HUNTER_BASE_DRAIN + this.size);
+        hunt.prey.energy -= drain;
         this.energy += drain * 0.92;
       }
 
@@ -403,7 +403,7 @@
         const score = (organism.energy + organism.size * 12) / Math.max(dist, 10);
         if (score > bestScore) {
           bestScore = score;
-          best = organism;
+          best = { prey: organism };
         }
       }
       return best;
@@ -487,11 +487,15 @@
           if (cub) cubs.push(cub);
         }
         this.hunters = this.hunters.filter((hunter) => hunter.alive);
-        if (cubs.length) this.hunters.push(...cubs.slice(0, MAX_HUNTERS - this.hunters.length));
+        if (cubs.length) this.hunters.push(...cubs);
 
         if (this.organisms.length > MAX_ORGANISMS) {
           this.organisms.sort((a, b) => b.energy - a.energy);
           this.organisms.length = MAX_ORGANISMS;
+        }
+        if (this.hunters.length > MAX_HUNTERS) {
+          this.hunters.sort((a, b) => b.energy - a.energy);
+          this.hunters.length = MAX_HUNTERS;
         }
         if (this.organisms.length < 14) this.seedRescuePopulation();
         if (this.time % HUNTER_SPAWN_INTERVAL === 0 && this.organisms.length > MIN_POPULATION_FOR_HUNTER_SPAWN && this.hunters.length < MAX_HUNTERS) {
