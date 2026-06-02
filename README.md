@@ -2,9 +2,25 @@
 
 Living Game Simulator.
 
-## Run
+## Deploy
 
-Open `index.html` in a browser.
+### GitHub Pages
+
+1. Go to your repository on GitHub.
+2. Click **Settings** → **Pages**.
+3. Under **Source**, select **Deploy from a branch**.
+4. Choose **main** (or your default branch) and **/ (root)**, then click **Save**.
+5. After a minute, the simulator will be live at `https://<your-username>.github.io/<repo-name>/` (replace `<your-username>` and `<repo-name>` with your actual GitHub username and repository name).
+
+### Run Locally
+
+Open `index.html` in a browser, or serve it with any static file server:
+
+```bash
+python3 -m http.server 8080
+```
+
+Then open `http://localhost:8080` in your browser.
 
 ## How to Play
 
@@ -27,4 +43,4 @@ Open `index.html` in a browser.
 
 ## Screenshots
 
-![Living Simulator gameplay](https://github.com/user-attachments/assets/2a375018-cf78-43c9-9fe3-0b2472e9814d)
+![Living Simulator gameplay](screenshots/gameplay.png)
