@@ -10,7 +10,7 @@ Living Game Simulator.
 2. Click **Settings** → **Pages**.
 3. Under **Source**, select **Deploy from a branch**.
 4. Choose **main** (or your default branch) and **/ (root)**, then click **Save**.
-5. After a minute, the simulator will be live at `https://<your-username>.github.io/<repo-name>/`.
+5. After a minute, the simulator will be live at `https://<your-username>.github.io/<repo-name>/` (replace `<your-username>` and `<repo-name>` with your actual GitHub username and repository name).
 
 ### Run Locally
 
