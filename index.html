@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Living Simulator</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0a0f16;
+      color: #d5e2f3;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+    }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button, select {
+      background: #111b28;
+      color: #d5e2f3;
+      border: 1px solid #274466;
+      border-radius: 6px;
+      padding: 6px 10px;
+    }
+    #stats {
+      font-size: 14px;
+      color: #9eb7d4;
+      min-height: 20px;
+    }
+    canvas {
+      border: 1px solid #274466;
+      border-radius: 8px;
+      image-rendering: pixelated;
+    }
+  </style>
+</head>
+<body>
+  <h1>Living Simulator</h1>
+  <div class="controls">
+    <label for="speed">Speed</label>
+    <select id="speed">
+      <option value="1">1x</option>
+      <option value="2">2x</option>
+      <option value="5">5x</option>
+      <option value="10">10x</option>
+      <option value="20">20x</option>
+      <option value="40">40x</option>
+      <option value="80">80x</option>
+    </select>
+    <button id="pause">Pause</button>
+    <button id="reset">Reset</button>
+  </div>
+  <div id="stats"></div>
+  <canvas id="world" width="900" height="560"></canvas>
+  <script src="./script.js"></script>
+</body>
+</html>
