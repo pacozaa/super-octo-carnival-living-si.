@@ -45,6 +45,57 @@
       border: 1px solid #274466;
       border-radius: 8px;
       image-rendering: pixelated;
+      cursor: crosshair;
+    }
+    #species-tooltip {
+      position: fixed;
+      display: none;
+      background: #0d1a2a;
+      border: 1px solid #3a6090;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #d5e2f3;
+      pointer-events: none;
+      z-index: 100;
+      max-width: 260px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.55);
+      line-height: 1.6;
+    }
+    #species-tooltip .tt-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #species-tooltip .tt-swatch {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    #species-tooltip .tt-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: #9eb7d4;
+    }
+    #species-tooltip .tt-row span:last-child {
+      color: #d5e2f3;
+      font-weight: 500;
+    }
+    #species-tooltip .tt-divider {
+      border: none;
+      border-top: 1px solid #1e3050;
+      margin: 6px 0;
+    }
+    #species-tooltip .tt-fact {
+      color: #7ec8a8;
+      font-style: italic;
+      font-size: 12px;
     }
   </style>
 </head>
@@ -67,6 +118,7 @@
   <div id="stats"></div>
   <div id="details"></div>
   <canvas id="world" width="900" height="560"></canvas>
+  <div id="species-tooltip"></div>
   <script type="module" src="./js/app.js"></script>
 </body>
 </html>

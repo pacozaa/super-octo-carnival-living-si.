@@ -1,5 +1,5 @@
 import { Simulation } from './simulation.js';
-import { setupUI, updateStats } from './ui.js';
+import { setupUI, updateStats, setupTooltip } from './ui.js';
 
 // Get DOM elements
 const canvas = document.getElementById("world");
@@ -9,12 +9,14 @@ const pauseBtn = document.getElementById("pause");
 const resetBtn = document.getElementById("reset");
 const statsEl = document.getElementById("stats");
 const detailsEl = document.getElementById("details");
+const tooltipEl = document.getElementById("species-tooltip");
 
 // Initialize simulation
 const simulation = new Simulation();
 
 // Setup UI controls
 setupUI(simulation, speedSelect, pauseBtn, resetBtn);
+setupTooltip(canvas, simulation, tooltipEl);
 
 // Main animation loop
 function frame() {
