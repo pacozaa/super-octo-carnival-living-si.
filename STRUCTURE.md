@@ -49,15 +49,17 @@ Utility functions for common operations:
 ### `js/species.js`
 Manages species creation and identification:
 - `createSpecies(seed)` - Generate new species with unique ID and color
+- `describeVertebrateForm(seed)` - Classify evolving body plans into vertebrate-inspired form stages
 - `speciesColor(species)` - Get RGB color string for a species
 - `colorDistance(a, b)` - Calculate color distance between species
+- `morphologyDistance(a, b)` - Calculate morphology distance between organisms/species
 - `resetSpeciesCounter()` - Reset global species ID counter
 - `getSpeciesCounter()` - Get current species counter value
 
 ### `js/traits.js`
 Handles genetic trait mutations:
 - `mutateTraits(parent, mutationPower)` - Generate mutated offspring traits
-  - Mutates: speed, size, vision, fertility, color (r, g, b)
+  - Mutates: speed, size, vision, fertility, color (r, g, b), and morphology traits used for species silhouettes
   - Respects min/max bounds for each trait
   - Mutation power affects magnitude of changes
 
@@ -74,6 +76,7 @@ Defines organism (prey) behavior:
   - Properties: position, energy, age, generation, traits, species
   - Methods: `step()`, `findThreat()`, `findRichTarget()`, `steer()`, `evade()`, `reproduce()`, `draw()`
   - Behavior: foraging, fleeing from hunters, reproduction when well-fed
+  - Rendering: draws evolving vertebrate-inspired silhouettes instead of simple circles
 
 ### `js/hunter.js`
 Defines hunter (predator) behavior:
@@ -89,6 +92,7 @@ Main simulation orchestrator:
   - Manages organism and hunter populations
   - Handles population culling and rescue mechanics
   - Triggers hunter spawning
+  - Summarizes dominant evolving body forms in the details UI
 
 ### `js/ui.js`
 User interface management:

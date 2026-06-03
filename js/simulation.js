@@ -3,7 +3,7 @@ import { BASE_ORGANISMS, MAX_ORGANISMS, MAX_HUNTERS, HUNTER_SPAWN_INTERVAL, MIN_
 import { Environment } from './environment.js';
 import { Organism } from './organism.js';
 import { Hunter } from './hunter.js';
-import { createSpecies, resetSpeciesCounter } from './species.js';
+import { createSpecies, resetSpeciesCounter, DEFAULT_VERTEBRATE_FORM } from './species.js';
 import { mutateTraits } from './traits.js';
 
 export class Simulation {
@@ -122,7 +122,25 @@ export class Simulation {
     const averageEnergy = this.organisms.length
       ? Math.round(this.organisms.reduce((sum, organism) => sum + organism.energy, 0) / this.organisms.length)
       : 0;
+    const formCounts = new Map();
+    for (const organism of this.organisms) {
+      const form = organism.getFormName();
+      formCounts.set(form, (formCounts.get(form) || 0) + 1);
+    }
+    const dominantForms = [...formCounts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([form, count]) => `${form}:${count}`)
+      .join(" ");
     const apexGeneration = this.hunters.reduce((best, hunter) => Math.max(best, hunter.generation), 0);
-    return `Season pulse ${this.env.season.toFixed(2)}  |  Climate event: ${this.env.event.name}  |  Mutation pressure ${this.env.event.mutation.toFixed(2)}x  |  Average energy ${averageEnergy}  |  Apex generation ${apexGeneration}`;
+    const details = [
+      `Season pulse ${this.env.season.toFixed(2)}`,
+      `Climate event: ${this.env.event.name}`,
+      `Mutation pressure ${this.env.event.mutation.toFixed(2)}x`,
+      `Average energy ${averageEnergy}`,
+      `Apex generation ${apexGeneration}`,
+      `Forms ${dominantForms || `${DEFAULT_VERTEBRATE_FORM}:0`}`
+    ];
+    return details.join("  |  ");
   }
 }
