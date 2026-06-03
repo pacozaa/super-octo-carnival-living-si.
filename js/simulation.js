@@ -104,6 +104,58 @@ export class Simulation {
     for (const hunter of this.hunters) hunter.draw(ctx);
   }
 
+  getOrganismAt(canvasX, canvasY, radius = 18) {
+    let nearest = null;
+    let nearestDist = radius;
+    for (const organism of this.organisms) {
+      const dx = organism.x - canvasX;
+      const dy = organism.y - canvasY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < nearestDist) {
+        nearestDist = dist;
+        nearest = organism;
+      }
+    }
+    return nearest;
+  }
+
+  getSpeciesInfo(organism) {
+    const speciesId = organism.species.id;
+    let population = 0;
+    let generationSum = 0;
+    for (const o of this.organisms) {
+      if (o.species.id === speciesId) {
+        population++;
+        generationSum += o.generation;
+      }
+    }
+    const avgGen = population ? generationSum / population : 0;
+
+    const FORM_FACTS = {
+      'Protofish':   'A primitive aquatic ancestor — fins and tail dominate its form.',
+      'Lobe-fin':    'Lobe-finned fish; early limb buds hint at a life on land.',
+      'Amphibian':   'Crawls between water and land, pioneer of terrestrial life.',
+      'Reptile':     'Fully terrestrial — scaled skin and sturdy limbs define it.',
+      'Avian':       'Winged apex form; lightweight and built for speed.',
+    };
+
+    return {
+      speciesId,
+      color: `rgb(${organism.species.r}, ${organism.species.g}, ${organism.species.b})`,
+      formName: organism.getFormName(),
+      population,
+      avgGeneration: Math.round(avgGen),
+      speed: organism.speed.toFixed(2),
+      size: organism.size.toFixed(1),
+      vision: Math.round(organism.vision),
+      fertility: (organism.fertility * 100).toFixed(1),
+      complexity: (organism.complexity * 100).toFixed(0),
+      energy: Math.round(organism.energy),
+      state: organism.state,
+      fact: FORM_FACTS[organism.getFormName()] ?? ''
+    };
+  }
+
   buildStats() {
     const speciesCounts = new Map();
     let oldest = 0;
