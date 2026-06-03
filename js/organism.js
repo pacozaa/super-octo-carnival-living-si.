@@ -13,6 +13,12 @@ const LEG_REAR_BASE = 0.55;
 const LEG_REAR_OFFSET = 0.08;
 const LEG_FRONT_BASE = 0.7;
 const LEG_FRONT_OFFSET = 0.1;
+const MIN_EYE_RADIUS = 0.7;
+
+const getLegOffset = (legPairs, index, bodyLength) => {
+  if (legPairs === 1) return SINGLE_LEG_OFFSET;
+  return index === 0 ? -bodyLength * FRONT_LEG_BACK_OFFSET : bodyLength * REAR_LEG_FRONT_OFFSET;
+};
 
 export class Organism {
   constructor(x, y, traits, species, generation = 1) {
@@ -233,7 +239,7 @@ export class Organism {
     } else {
       const legPairs = profile.stageIndex >= 3 ? 2 : 1;
       for (let i = 0; i < legPairs; i++) {
-        const offset = legPairs === 1 ? SINGLE_LEG_OFFSET : i === 0 ? -bodyLength * FRONT_LEG_BACK_OFFSET : bodyLength * REAR_LEG_FRONT_OFFSET;
+        const offset = getLegOffset(legPairs, i, bodyLength);
         const rear = LEG_REAR_BASE + i * LEG_REAR_OFFSET;
         const front = LEG_FRONT_BASE + i * LEG_FRONT_OFFSET;
         const spread = 1.4 + profile.limbs * 0.28;
@@ -293,7 +299,7 @@ export class Organism {
 
     ctx.fillStyle = "#f4fbff";
     ctx.beginPath();
-    ctx.arc(headX + headRadius * 0.2, -bodyHeight * 0.12, Math.max(0.7, headRadius * 0.18), 0, Math.PI * 2);
+    ctx.arc(headX + headRadius * 0.2, -bodyHeight * 0.12, Math.max(MIN_EYE_RADIUS, headRadius * 0.18), 0, Math.PI * 2);
     ctx.fill();
 
     ctx.restore();

@@ -3,7 +3,7 @@ import { BASE_ORGANISMS, MAX_ORGANISMS, MAX_HUNTERS, HUNTER_SPAWN_INTERVAL, MIN_
 import { Environment } from './environment.js';
 import { Organism } from './organism.js';
 import { Hunter } from './hunter.js';
-import { createSpecies, resetSpeciesCounter } from './species.js';
+import { createSpecies, resetSpeciesCounter, DEFAULT_VERTEBRATE_FORM } from './species.js';
 import { mutateTraits } from './traits.js';
 
 export class Simulation {
@@ -139,7 +139,7 @@ export class Simulation {
       `Mutation pressure ${this.env.event.mutation.toFixed(2)}x`,
       `Average energy ${averageEnergy}`,
       `Apex generation ${apexGeneration}`,
-      `Forms ${dominantForms || "Protofish:0"}`
+      `Forms ${dominantForms || `${DEFAULT_VERTEBRATE_FORM}:0`}`
     ];
     return details.join("  |  ");
   }

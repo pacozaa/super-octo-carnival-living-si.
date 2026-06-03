@@ -2,6 +2,8 @@ import { clamp } from './utils.js';
 
 let speciesCounter = 1;
 const VERTEBRATE_FORMS = ['Protofish', 'Lobe-fin', 'Amphibian', 'Reptile', 'Avian'];
+export const DEFAULT_VERTEBRATE_FORM = VERTEBRATE_FORMS[0];
+const COMPLEXITY_DISTANCE_WEIGHT = 8;
 
 export const buildMorphologySeed = (seed = {}) => {
   const size = seed.size ?? 4.2;
@@ -106,7 +108,7 @@ export const morphologyDistance = (a, b) => {
   const rightSeed = toMorphologySeed(b);
   const left = normalizeMorphology(leftSeed);
   const right = normalizeMorphology(rightSeed);
-  const complexityDelta = (leftSeed.complexity - rightSeed.complexity) * 8;
+  const complexityDelta = (leftSeed.complexity - rightSeed.complexity) * COMPLEXITY_DISTANCE_WEIGHT;
 
   return Math.sqrt(
     (left.body - right.body) ** 2 +
