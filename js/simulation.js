@@ -1,5 +1,5 @@
 import { random } from './utils.js';
-import { BASE_ORGANISMS, MAX_ORGANISMS, MAX_HUNTERS, HUNTER_SPAWN_INTERVAL, MIN_POPULATION_FOR_HUNTER_SPAWN } from './constants.js';
+import { BASE_ORGANISMS, MAX_ORGANISMS, MAX_HUNTERS, HUNTER_SPAWN_INTERVAL, MIN_POPULATION_FOR_HUNTER_SPAWN, WORLD_WIDTH, WORLD_HEIGHT } from './constants.js';
 import { Environment } from './environment.js';
 import { Organism } from './organism.js';
 import { Hunter } from './hunter.js';
@@ -28,8 +28,8 @@ export class Simulation {
         b: root.b
       }, 1.4);
       return new Organism(
-        random(0, 900),
-        random(0, 560),
+        random(0, WORLD_WIDTH),
+        random(0, WORLD_HEIGHT),
         traits,
         root
       );
@@ -84,7 +84,7 @@ export class Simulation {
     };
     for (let i = 0; i < 9; i++) {
       this.organisms.push(
-        new Organism(random(0, 900), random(0, 560), traits, fallback)
+        new Organism(random(0, WORLD_WIDTH), random(0, WORLD_HEIGHT), traits, fallback)
       );
     }
   }
@@ -92,8 +92,8 @@ export class Simulation {
   spawnHunters(count) {
     for (let i = 0; i < count && this.hunters.length < MAX_HUNTERS; i++) {
       const edge = Math.floor(random(0, 4));
-      const x = edge % 2 === 0 ? (edge === 0 ? 18 : 900 - 18) : random(24, 900 - 24);
-      const y = edge % 2 === 1 ? (edge === 1 ? 18 : 560 - 18) : random(24, 560 - 24);
+      const x = edge % 2 === 0 ? (edge === 0 ? 18 : WORLD_WIDTH - 18) : random(24, WORLD_WIDTH - 24);
+      const y = edge % 2 === 1 ? (edge === 1 ? 18 : WORLD_HEIGHT - 18) : random(24, WORLD_HEIGHT - 24);
       this.hunters.push(new Hunter(x, y));
     }
   }

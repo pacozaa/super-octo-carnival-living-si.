@@ -1,6 +1,6 @@
-import { random, clamp, distance } from './utils.js';
+import { random, clamp, distance, chance } from './utils.js';
 import { WORLD_WIDTH, WORLD_HEIGHT, CELL, GRID_W, GRID_H, REPRODUCTION_ENERGY, REPRODUCTION_COST, TICK_DAMAGE, ORGANISM_MIN_SAFETY_RADIUS, SAFETY_RADIUS_VISION_FACTOR, MAX_ORGANISMS } from './constants.js';
-import { speciesColor, colorDistance, createSpecies, chance } from './species.js';
+import { speciesColor, colorDistance, createSpecies } from './species.js';
 import { mutateTraits } from './traits.js';
 
 export class Organism {

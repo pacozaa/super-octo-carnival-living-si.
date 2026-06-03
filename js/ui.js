@@ -10,10 +10,6 @@ export const setupUI = (simulation, speedSelect, pauseBtn, resetBtn) => {
     simulation.reset();
     pauseBtn.textContent = "Pause";
   });
-
-  return {
-    getSpeed: () => Number(speedSelect.value || 1)
-  };
 };
 
 export const updateStats = (simulation, statsEl, detailsEl) => {
