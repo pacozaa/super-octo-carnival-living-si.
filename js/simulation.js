@@ -133,6 +133,14 @@ export class Simulation {
       .map(([form, count]) => `${form}:${count}`)
       .join(" ");
     const apexGeneration = this.hunters.reduce((best, hunter) => Math.max(best, hunter.generation), 0);
-    return `Season pulse ${this.env.season.toFixed(2)}  |  Climate event: ${this.env.event.name}  |  Mutation pressure ${this.env.event.mutation.toFixed(2)}x  |  Average energy ${averageEnergy}  |  Apex generation ${apexGeneration}  |  Forms ${dominantForms || "Protofish:0"}`;
+    const details = [
+      `Season pulse ${this.env.season.toFixed(2)}`,
+      `Climate event: ${this.env.event.name}`,
+      `Mutation pressure ${this.env.event.mutation.toFixed(2)}x`,
+      `Average energy ${averageEnergy}`,
+      `Apex generation ${apexGeneration}`,
+      `Forms ${dominantForms || "Protofish:0"}`
+    ];
+    return details.join("  |  ");
   }
 }

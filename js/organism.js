@@ -3,6 +3,17 @@ import { WORLD_WIDTH, WORLD_HEIGHT, CELL, GRID_W, GRID_H, REPRODUCTION_ENERGY, R
 import { speciesColor, colorDistance, createSpecies, describeVertebrateForm, morphologyDistance } from './species.js';
 import { mutateTraits } from './traits.js';
 
+const BASE_MATURITY = 0.72;
+const MAX_MATURITY_AGE = 900;
+const MATURITY_SCALE = 3200;
+const SINGLE_LEG_OFFSET = 0;
+const FRONT_LEG_BACK_OFFSET = 0.15;
+const REAR_LEG_FRONT_OFFSET = 0.1;
+const LEG_REAR_BASE = 0.55;
+const LEG_REAR_OFFSET = 0.08;
+const LEG_FRONT_BASE = 0.7;
+const LEG_FRONT_OFFSET = 0.1;
+
 export class Organism {
   constructor(x, y, traits, species, generation = 1) {
     this.x = x;
@@ -167,7 +178,7 @@ export class Organism {
   getVisualProfile() {
     const current = describeVertebrateForm(this);
     const speciesMorphology = this.species.morphology || current.morphology;
-    const maturity = 0.72 + Math.min(this.age, 900) / 3200;
+    const maturity = BASE_MATURITY + Math.min(this.age, MAX_MATURITY_AGE) / MATURITY_SCALE;
 
     return {
       stageIndex: current.stageIndex,
@@ -222,9 +233,9 @@ export class Organism {
     } else {
       const legPairs = profile.stageIndex >= 3 ? 2 : 1;
       for (let i = 0; i < legPairs; i++) {
-        const offset = legPairs === 1 ? 0 : i === 0 ? -bodyLength * 0.15 : bodyLength * 0.1;
-        const rear = 0.55 + i * 0.08;
-        const front = 0.7 + i * 0.1;
+        const offset = legPairs === 1 ? SINGLE_LEG_OFFSET : i === 0 ? -bodyLength * FRONT_LEG_BACK_OFFSET : bodyLength * REAR_LEG_FRONT_OFFSET;
+        const rear = LEG_REAR_BASE + i * LEG_REAR_OFFSET;
+        const front = LEG_FRONT_BASE + i * LEG_FRONT_OFFSET;
         const spread = 1.4 + profile.limbs * 0.28;
         ctx.beginPath();
         ctx.moveTo(offset, bodyHeight * 0.22);

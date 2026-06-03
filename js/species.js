@@ -3,13 +3,17 @@ import { clamp } from './utils.js';
 let speciesCounter = 1;
 const VERTEBRATE_FORMS = ['Protofish', 'Lobe-fin', 'Amphibian', 'Reptile', 'Avian'];
 
-const normalizeMorphology = (seed = {}) => {
+export const buildMorphologySeed = (seed = {}) => {
   const size = seed.size ?? 4.2;
   const vision = seed.vision ?? 50;
   const fertility = seed.fertility ?? 0.08;
   const complexity = clamp(seed.complexity ?? 0.18, 0, 1);
 
   return {
+    size,
+    vision,
+    fertility,
+    complexity,
     body: clamp(seed.body ?? size * 2.4, 5, 20),
     tail: clamp(seed.tail ?? size * 1.5, 2, 18),
     fin: clamp(seed.fin ?? Math.max(1.1, vision / 22), 0.4, 10),
@@ -18,6 +22,32 @@ const normalizeMorphology = (seed = {}) => {
     crest: clamp(seed.crest ?? fertility * 18 + complexity * 1.4, 0, 5.5),
     wing: clamp(seed.wing ?? Math.max(0, (complexity - 0.58) * 10), 0, 12)
   };
+};
+
+const normalizeMorphology = (seed = {}) => {
+  const morphology = buildMorphologySeed(seed);
+  return {
+    body: morphology.body,
+    tail: morphology.tail,
+    fin: morphology.fin,
+    limbs: morphology.limbs,
+    neck: morphology.neck,
+    crest: morphology.crest,
+    wing: morphology.wing
+  };
+};
+
+const toMorphologySeed = (value = {}) => {
+  if (value.morphology) {
+    return buildMorphologySeed({
+      ...value.morphology,
+      complexity: value.complexity,
+      size: value.size,
+      vision: value.vision,
+      fertility: value.fertility
+    });
+  }
+  return buildMorphologySeed(value);
 };
 
 const evolutionScore = (seed, morphology) => {
@@ -72,9 +102,11 @@ export const colorDistance = (a, b) => {
 };
 
 export const morphologyDistance = (a, b) => {
-  const left = normalizeMorphology(a);
-  const right = normalizeMorphology(b.morphology ? { ...b.morphology, complexity: b.complexity } : b);
-  const complexityDelta = ((a.complexity ?? 0.18) - (b.complexity ?? 0.18)) * 8;
+  const leftSeed = toMorphologySeed(a);
+  const rightSeed = toMorphologySeed(b);
+  const left = normalizeMorphology(leftSeed);
+  const right = normalizeMorphology(rightSeed);
+  const complexityDelta = (leftSeed.complexity - rightSeed.complexity) * 8;
 
   return Math.sqrt(
     (left.body - right.body) ** 2 +
