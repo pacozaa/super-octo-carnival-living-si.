@@ -1,18 +1,19 @@
-# super-octo-carnival-living-si.
+# Living Simulator
 
-Living Game Simulator.
+An emergent ecosystem sandbox where life adapts, species branch, and apex hunters reshape the food web in real time.
 
-## Deploy
+If you like watching complex systems produce surprising outcomes, this simulator gives you fast feedback: hit play, accelerate time, and watch evolution happen on-screen.
 
-### GitHub Pages
+## Why it is worth trying
 
-1. Go to your repository on GitHub.
-2. Click **Settings** → **Pages**.
-3. Under **Source**, select **Deploy from a branch**.
-4. Choose **main** (or your default branch) and **/ (root)**, then click **Save**.
-5. After a minute, the simulator will be live at `https://<your-username>.github.io/<repo-name>/` (replace `<your-username>` and `<repo-name>` with your actual GitHub username and repository name).
+- **Instantly watch evolution:** organisms mutate traits and silhouettes across generations.
+- **See real ecological pressure:** climate events and apex hunters force adaptation or collapse.
+- **Explore different outcomes every run:** each reset generates a fresh world with new dynamics.
+- **Run fast experiments:** speed controls let you jump from first generation to late-stage ecosystems quickly.
 
-### Run Locally
+## Quick Start
+
+### Run locally
 
 Open `index.html` in a browser, or serve it with any static file server:
 
@@ -20,35 +21,46 @@ Open `index.html` in a browser, or serve it with any static file server:
 python3 -m http.server 8080
 ```
 
-Then open `http://localhost:8080` in your browser.
+Then open `http://localhost:8080`.
+
+### Deploy with GitHub Pages
+
+1. In your repository, go to **Settings** → **Pages**.
+2. Under **Source**, choose **Deploy from a branch**.
+3. Select your default branch and **/ (root)**, then click **Save**.
+4. After deployment, open `https://<your-username>.github.io/<repo-name>/`.
 
 ## How to Play
 
-- Watch organisms move around and consume nutrients from the map.
-- Watch for climate shifts that can trigger blooms, droughts, stormfronts, and auroras.
-- Keep an eye on apex hunters that appear when the world becomes crowded and force prey to flee.
-- Watch species silhouettes evolve from fish-like bodies toward more complex vertebrate-inspired forms as traits mutate.
-- Use **Speed** to control simulation rate from `1x` to `80x`.
-- Click **Pause** to stop/resume the simulation.
-- Click **Reset** to restart with a fresh randomized world.
-- Track evolution in the stats line:
-  - **Population**: current organism count
-  - **Hunters**: number of apex predators roaming the map
-  - **Species**: number of distinct evolved species
+- Watch organisms roam, feed, and compete.
+- Monitor climate shifts (bloom, drought, stormfront, aurora) and their ecosystem impact.
+- Track hunter pressure as apex predators spawn, chase prey, and reproduce.
+- Use **Speed** (`1x` to `80x`) to move from slow observation to rapid simulation.
+- Use **Pause** to inspect a stable moment and **Reset** to generate a new world.
+- Follow the stat bar to understand the run:
+  - **Population**: active organisms
+  - **Hunters**: apex predators on the map
+  - **Species**: currently distinct species
   - **Max generation**: deepest generation reached
+  - **Dominant**: species currently leading by population
 
-## Features
+## Feature Highlights
 
-- Random 2D environment map with color variation
-- Randomly generated living organisms
-- Evolution through mutation of speed, size, vision, and color
-- Species-specific body plans that mutate over generations into new vertebrate-inspired silhouettes
-- Emergent new species when mutations diverge enough
-- Rolling climate events with different growth, pressure, and mutation effects
-- Apex hunters that chase, drain, and reproduce from successful hunts
-- Fear behavior that causes organisms to flee nearby hunters
-- Fast-forward speed controls (1x to 80x)
+- Procedural 2D world with randomized starting conditions
+- Trait mutation (speed, size, vision, color) driving evolutionary drift
+- Species divergence into distinct lineages
+- Body-form progression from protofish toward more complex silhouettes
+- Dynamic climate events that alter growth and mutation pressure
+- Predator-prey loop with fear behavior and hunter reproduction
+- High-speed simulation controls for quick scenario exploration
 
 ## Screenshots
 
-![Living Simulator gameplay](screenshots/gameplay.png)
+### Early simulation overview
+![Early simulation overview](screenshots/simulator-overview.png)
+
+### Late-game expansion with population pressure
+![Late-game expansion](screenshots/late-game-expansion.png)
+
+### Paused dashboard showing deep evolutionary progression
+![Paused evolution dashboard](screenshots/evolution-dashboard-paused.png)
