@@ -27,6 +27,7 @@ Then open `http://localhost:8080` in your browser.
 - Watch organisms move around and consume nutrients from the map.
 - Watch for climate shifts that can trigger blooms, droughts, stormfronts, and auroras.
 - Keep an eye on apex hunters that appear when the world becomes crowded and force prey to flee.
+- Watch species silhouettes evolve from fish-like bodies toward more complex vertebrate-inspired forms as traits mutate.
 - Use **Speed** to control simulation rate from `1x` to `80x`.
 - Click **Pause** to stop/resume the simulation.
 - Click **Reset** to restart with a fresh randomized world.
@@ -41,6 +42,7 @@ Then open `http://localhost:8080` in your browser.
 - Random 2D environment map with color variation
 - Randomly generated living organisms
 - Evolution through mutation of speed, size, vision, and color
+- Species-specific body plans that mutate over generations into new vertebrate-inspired silhouettes
 - Emergent new species when mutations diverge enough
 - Rolling climate events with different growth, pressure, and mutation effects
 - Apex hunters that chase, drain, and reproduce from successful hunts
