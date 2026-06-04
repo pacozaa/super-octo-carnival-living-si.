@@ -170,10 +170,10 @@
   </style>
 </head>
 <body>
-  <h1>Living Simulator</h1>
-  <div class="controls">
+  <h1 data-testid="app-title">Living Simulator</h1>
+  <div class="controls" data-testid="controls-panel">
     <label for="speed">Speed</label>
-    <select id="speed">
+    <select id="speed" data-testid="speed-select">
       <option value="1">1x</option>
       <option value="2">2x</option>
       <option value="5">5x</option>
@@ -182,13 +182,13 @@
       <option value="40">40x</option>
       <option value="80">80x</option>
     </select>
-    <button id="pause">Pause</button>
-    <button id="reset">Reset</button>
-    <button id="apocalypse">Apocalypse</button>
-    <a class="link-btn" href="./help.html">Stats &amp; graphics help</a>
+    <button id="pause" data-testid="pause-button">Pause</button>
+    <button id="reset" data-testid="reset-button">Reset</button>
+    <button id="apocalypse" data-testid="apocalypse-button">Apocalypse</button>
+    <a class="link-btn" href="./help.html" data-testid="help-link">Stats &amp; graphics help</a>
   </div>
-  <div id="stats"></div>
-  <div id="details"></div>
+  <div id="stats" data-testid="stats-display"></div>
+  <div id="details" data-testid="details-display"></div>
   <div class="settings-panel" id="settings-panel">
     <h3 id="settings-toggle">Simulation Settings</h3>
     <div class="settings-grid">
