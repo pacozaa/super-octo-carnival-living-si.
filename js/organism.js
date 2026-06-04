@@ -10,6 +10,7 @@ const BREEDING_AGE = 120;
 const BREEDING_RANGE_FACTOR = 0.55;
 const BREEDING_COOLDOWN = 80;
 const BREEDING_ENERGY_BUFFER = 10;
+const WING_RENDERING_STAGE = 7;
 const SINGLE_LEG_OFFSET = 0;
 const FRONT_LEG_BACK_OFFSET = 0.15;
 const REAR_LEG_FRONT_OFFSET = 0.1;
@@ -335,7 +336,7 @@ export class Organism {
       }
     }
 
-    if (profile.stageIndex >= 7 || profile.wing > 1.4) {
+    if (profile.stageIndex >= WING_RENDERING_STAGE || profile.wing > 1.4) {
       const wingSpan = profile.wing + bodyLength * 0.2;
       ctx.globalAlpha = 0.35;
       ctx.beginPath();
