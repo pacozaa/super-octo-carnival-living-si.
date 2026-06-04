@@ -2,6 +2,13 @@
 
 import { speciesColor } from './species.js';
 
+// Constants for visual rendering
+const SPOT_X_FREQUENCY = 7.13;  // Frequency multiplier for deterministic X spot positioning
+const SPOT_Y_FREQUENCY = 5.27;  // Frequency multiplier for deterministic Y spot positioning
+const SPOT_SIZE_FREQUENCY = 2.1; // Frequency multiplier for deterministic spot size variation
+const LEFT_EYE_POSITION = { xOffset: 0.3, yOffset: -0.4 };  // Hunter left eye position multipliers
+const RIGHT_EYE_POSITION = { xOffset: -0.3, yOffset: -0.4 }; // Hunter right eye position multipliers
+
 /**
  * Get complementary/accent color based on primary color for visual contrast
  */
@@ -336,9 +343,9 @@ export const drawEnhancedOrganism = (ctx, organism, profile, bodyLength, bodyHei
     ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
     const spotCount = Math.floor(organism.complexity * 6 + organism.fertility * 3);
     for (let i = 0; i < spotCount; i++) {
-      const spotX = (Math.sin(i * 7.13) * bodyLength * 0.35);
-      const spotY = (Math.cos(i * 5.27) * bodyHeight * 0.3);
-      const spotSize = 0.4 + Math.abs(Math.sin(i * 2.1)) * 0.6;
+      const spotX = (Math.sin(i * SPOT_X_FREQUENCY) * bodyLength * 0.35);
+      const spotY = (Math.cos(i * SPOT_Y_FREQUENCY) * bodyHeight * 0.3);
+      const spotSize = 0.4 + Math.abs(Math.sin(i * SPOT_SIZE_FREQUENCY)) * 0.6;
       ctx.beginPath();
       ctx.arc(spotX, spotY, spotSize, 0, Math.PI * 2);
       ctx.fill();
@@ -494,8 +501,10 @@ export const drawAggressiveHunter = (ctx, hunter) => {
   ctx.fill();
   ctx.stroke();
 
-  // Eyes (more menacing)
-  for (const [xOffset, yOffset] of [[size * 0.3, -size * 0.4], [-size * 0.3, -size * 0.4]]) {
+  // Eyes (more menacing) using named positions for better readability
+  for (const eyePos of [LEFT_EYE_POSITION, RIGHT_EYE_POSITION]) {
+    const xOffset = eyePos.xOffset * size;
+    const yOffset = eyePos.yOffset * size;
     ctx.fillStyle = '#ffff00';
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 0.7;
