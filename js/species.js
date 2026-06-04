@@ -1,7 +1,7 @@
 import { clamp } from './utils.js';
 
 let speciesCounter = 1;
-const VERTEBRATE_FORMS = ['Protofish', 'Lobe-fin', 'Amphibian', 'Reptile', 'Avian'];
+const VERTEBRATE_FORMS = ['Protofish', 'Tiktaalik', 'Lobe-fin', 'Amphibian', 'Synapsid', 'Reptile', 'Diapsid', 'Dinosaur', 'Avian'];
 export const DEFAULT_VERTEBRATE_FORM = VERTEBRATE_FORMS[0];
 const COMPLEXITY_DISTANCE_WEIGHT = 8;
 
@@ -69,10 +69,14 @@ export const describeVertebrateForm = (seed = {}) => {
   const morphology = normalizeMorphology(seed);
   const score = evolutionScore(seed, morphology);
   let stageIndex = 0;
-  if (score >= 6) stageIndex = 4;
-  else if (score >= 4.8) stageIndex = 3;
-  else if (score >= 3.6) stageIndex = 2;
-  else if (score >= 2.5) stageIndex = 1;
+  if (score >= 8.5) stageIndex = 8;      // Avian
+  else if (score >= 7.5) stageIndex = 7; // Dinosaur
+  else if (score >= 6.5) stageIndex = 6; // Diapsid
+  else if (score >= 5.5) stageIndex = 5; // Reptile
+  else if (score >= 4.5) stageIndex = 4; // Synapsid
+  else if (score >= 3.5) stageIndex = 3; // Amphibian
+  else if (score >= 2.5) stageIndex = 2; // Lobe-fin
+  else if (score >= 1.5) stageIndex = 1; // Tiktaalik
 
   return {
     stageIndex,
