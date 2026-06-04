@@ -85,10 +85,11 @@ export const describeVertebrateForm = (seed = {}) => {
   };
 };
 
-export const createSpecies = (seed) => {
+export const createSpecies = (seed, parentId = null) => {
   const form = describeVertebrateForm(seed);
   return {
     id: speciesCounter++,
+    parentId,
     r: clamp(Math.round(seed.r), 30, 255),
     g: clamp(Math.round(seed.g), 30, 255),
     b: clamp(Math.round(seed.b), 30, 255),
@@ -131,3 +132,6 @@ export const resetSpeciesCounter = () => {
 };
 
 export const getSpeciesCounter = () => speciesCounter;
+export const setSpeciesCounter = (value) => {
+  speciesCounter = Math.max(1, Math.floor(value || 1));
+};

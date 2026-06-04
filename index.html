@@ -57,6 +57,10 @@
       border-radius: 6px;
       padding: 6px 10px;
     }
+    .ghost-btn {
+      font-size: 12px;
+      padding: 6px 9px;
+    }
     .link-btn {
       background: #111b28;
       color: #d5e2f3;
@@ -192,6 +196,54 @@
       outline: none;
       border-color: #3a6090;
     }
+    .dashboard-card {
+      background: #0d1a2a;
+      border: 1px solid #274466;
+      border-radius: 8px;
+      padding: 10px;
+    }
+    .dashboard-card h3 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      color: #d5e2f3;
+    }
+    .timeline-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 190px;
+      overflow-y: auto;
+    }
+    .timeline-item {
+      width: 100%;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .timeline-time {
+      color: #7e98b8;
+      white-space: nowrap;
+    }
+    .timeline-label {
+      color: #d5e2f3;
+      flex: 1;
+    }
+    .timeline-empty {
+      color: #7e98b8;
+      font-size: 12px;
+    }
+    #trait-chart {
+      width: 100%;
+      height: auto;
+      border: 1px solid #1e3050;
+      border-radius: 6px;
+      background: #0d1a2a;
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -217,10 +269,21 @@
         <button id="pause" data-testid="pause-button">Pause</button>
         <button id="reset" data-testid="reset-button">Reset</button>
         <button id="apocalypse" data-testid="apocalypse-button">Apocalypse</button>
+        <button id="save-state" class="ghost-btn" data-testid="save-state-button">Save state</button>
+        <button id="load-state" class="ghost-btn" data-testid="load-state-button">Load state</button>
+        <input type="file" id="load-state-file" accept="application/json" style="display:none" data-testid="load-state-file-input">
         <a class="link-btn" href="./help.html" data-testid="help-link">Stats &amp; graphics help</a>
       </div>
       <div id="stats" data-testid="stats-display"></div>
       <div id="details" data-testid="details-display"></div>
+      <div class="dashboard-card" data-testid="replay-panel">
+        <h3>Replay timeline</h3>
+        <div id="replay-timeline" class="timeline-list" data-testid="replay-timeline"></div>
+      </div>
+      <div class="dashboard-card" data-testid="trait-panel">
+        <h3>Trait tracking over time</h3>
+        <canvas id="trait-chart" width="360" height="170" data-testid="trait-chart"></canvas>
+      </div>
       <div class="settings-panel" id="settings-panel" data-testid="settings-panel">
         <h3 id="settings-toggle" data-testid="settings-toggle">Simulation Settings</h3>
         <div class="settings-grid" data-testid="settings-grid">

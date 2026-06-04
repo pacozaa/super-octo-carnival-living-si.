@@ -37,7 +37,10 @@ Then open `http://localhost:8080`.
 - Track hunter pressure as apex predators spawn, chase prey, and reproduce.
 - Use **Speed** (`1x` to `80x`) to move from slow observation to rapid simulation.
 - Use **Pause** to inspect a stable moment and **Reset** to generate a new world.
+- Use **Save state** to export the current run as JSON and **Load state** to resume from that snapshot later.
 - Use **Stats & graphics help** from the main toolbar for a full explanation of stats, breeding, and visual indicators.
+- Use the **Replay timeline** panel to jump back to key moments (extinction events, species branching, apex predator spawns, and sticky mutations).
+- Watch the **Trait tracking** graph to see average speed/size/vision trends over time and where mutations become persistent.
 - Follow the stat bar to understand the run:
   - **Population**: active organisms
   - **Hunters**: apex predators on the map
@@ -54,6 +57,9 @@ Then open `http://localhost:8080`.
 - Dynamic climate events that alter growth and mutation pressure
 - Predator-prey loop with fear behavior and hunter reproduction
 - High-speed simulation controls for quick scenario exploration
+- Save/load run state with full world + lineage data in JSON
+- Replay timeline with jump-to-moment state restoration
+- Trait trend chart with mutation-stick markers
 
 ## Screenshots
 

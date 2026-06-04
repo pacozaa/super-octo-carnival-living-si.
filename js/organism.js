@@ -232,7 +232,7 @@ export class Organism {
       colorDistance(mutated, this.species) > 24 ||
       morphologyDistance(mutated, this.species) > 3.6 ||
       chance(0.01 * Math.max(1, env.event.mutation));
-    const species = maybeNewSpecies ? createSpecies(mutated) : this.species;
+    const species = maybeNewSpecies ? createSpecies(mutated, this.species.id) : this.species;
     const baseX = mate ? (this.x + mate.x) * 0.5 : this.x;
     const baseY = mate ? (this.y + mate.y) * 0.5 : this.y;
     return new Organism(
