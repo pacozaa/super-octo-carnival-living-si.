@@ -35,11 +35,13 @@ export class Simulation {
       );
     });
     this.hunters = [];
+    this.lastBirths = 0;
     this.spawnHunters(2);
   }
 
   update(stepCount) {
     if (!this.running) return;
+    let totalBirths = 0;
     for (let i = 0; i < stepCount; i++) {
       this.time += 1;
       this.env.update();
@@ -58,6 +60,7 @@ export class Simulation {
       }
       this.hunters = this.hunters.filter((hunter) => hunter.alive);
       if (cubs.length) this.hunters.push(...cubs);
+      totalBirths += newborns.length + cubs.length;
 
       if (this.organisms.length > MAX_ORGANISMS) {
         this.organisms.sort((a, b) => b.energy - a.energy);
@@ -72,6 +75,7 @@ export class Simulation {
         this.spawnHunters(1);
       }
     }
+    this.lastBirths = totalBirths;
   }
 
   seedRescuePopulation() {
@@ -190,6 +194,7 @@ export class Simulation {
       `Climate event: ${this.env.event.name}`,
       `Mutation pressure ${this.env.event.mutation.toFixed(2)}x`,
       `Average energy ${averageEnergy}`,
+      `Births this frame ${this.lastBirths}`,
       `Apex generation ${apexGeneration}`,
       `Forms ${dominantForms || `${DEFAULT_VERTEBRATE_FORM}:0`}`
     ];

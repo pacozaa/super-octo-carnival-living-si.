@@ -6,6 +6,10 @@ import { mutateTraits } from './traits.js';
 const BASE_MATURITY = 0.72;
 const MAX_MATURITY_AGE = 900;
 const MATURITY_SCALE = 3200;
+const BREEDING_AGE = 220;
+const BREEDING_RANGE_FACTOR = 0.55;
+const BREEDING_COOLDOWN = 180;
+const BREEDING_ENERGY_BUFFER = 18;
 const SINGLE_LEG_OFFSET = 0;
 const FRONT_LEG_BACK_OFFSET = 0.15;
 const REAR_LEG_FRONT_OFFSET = 0.1;
@@ -43,6 +47,7 @@ export class Organism {
     this.vx = random(-1, 1);
     this.vy = random(-1, 1);
     this.state = "foraging";
+    this.breedCooldown = 0;
   }
 
   get alive() {
@@ -51,6 +56,7 @@ export class Organism {
 
   step(env, organisms, hunters) {
     this.age += 1;
+    if (this.breedCooldown > 0) this.breedCooldown -= 1;
     const threat = this.findThreat(hunters);
     const target = threat ? null : this.findRichTarget(env);
 
@@ -72,12 +78,51 @@ export class Organism {
     this.energy -= TICK_DAMAGE + this.speed * 0.13 + this.size * 0.08 + env.getTravelPenalty(this.x, this.y);
     if (threat) this.energy -= 0.06;
 
-    if (this.energy > REPRODUCTION_ENERGY && organisms.length < MAX_ORGANISMS) {
-      this.energy -= REPRODUCTION_COST;
-      this.state = "spawning";
-      return this.reproduce(env);
+    if (!threat && organisms.length < MAX_ORGANISMS) {
+      const mate = this.findMate(organisms);
+      if (
+        mate &&
+        this.energy > REPRODUCTION_ENERGY + BREEDING_ENERGY_BUFFER &&
+        mate.energy > REPRODUCTION_ENERGY + BREEDING_ENERGY_BUFFER
+      ) {
+        const sharedCost = REPRODUCTION_COST * 0.58;
+        this.energy -= sharedCost;
+        mate.energy -= sharedCost;
+        this.state = "spawning";
+        mate.state = "spawning";
+        this.breedCooldown = BREEDING_COOLDOWN;
+        mate.breedCooldown = BREEDING_COOLDOWN;
+        return this.reproduce(env, mate);
+      }
+
+      if (this.energy > REPRODUCTION_ENERGY) {
+        this.energy -= REPRODUCTION_COST;
+        this.state = "spawning";
+        this.breedCooldown = BREEDING_COOLDOWN;
+        return this.reproduce(env);
+      }
     }
     return null;
+  }
+
+  findMate(organisms) {
+    if (this.age < BREEDING_AGE || this.breedCooldown > 0) return null;
+    const range = Math.max(12, this.vision * BREEDING_RANGE_FACTOR);
+    let best = null;
+    let bestDistance = Infinity;
+    for (const candidate of organisms) {
+      if (candidate === this) continue;
+      if (candidate.species.id !== this.species.id) continue;
+      if (candidate.age < BREEDING_AGE || candidate.breedCooldown > 0) continue;
+      if (candidate.energy <= REPRODUCTION_ENERGY + BREEDING_ENERGY_BUFFER) continue;
+      if (candidate.state === "fleeing") continue;
+      const dist = distance(this.x, this.y, candidate.x, candidate.y);
+      if (dist < range && dist < bestDistance) {
+        bestDistance = dist;
+        best = candidate;
+      }
+    }
+    return best;
   }
 
   findThreat(hunters) {
@@ -145,8 +190,24 @@ export class Organism {
     this.vy /= norm;
   }
 
-  reproduce(env) {
-    const mutated = mutateTraits({
+  reproduce(env, mate = null) {
+    const parentSeed = mate ? {
+      speed: (this.speed + mate.speed) * 0.5,
+      size: (this.size + mate.size) * 0.5,
+      vision: (this.vision + mate.vision) * 0.5,
+      fertility: (this.fertility + mate.fertility) * 0.5,
+      body: (this.body + mate.body) * 0.5,
+      tail: (this.tail + mate.tail) * 0.5,
+      fin: (this.fin + mate.fin) * 0.5,
+      limbs: (this.limbs + mate.limbs) * 0.5,
+      neck: (this.neck + mate.neck) * 0.5,
+      crest: (this.crest + mate.crest) * 0.5,
+      wing: (this.wing + mate.wing) * 0.5,
+      complexity: (this.complexity + mate.complexity) * 0.5,
+      r: (this.species.r + mate.species.r) * 0.5,
+      g: (this.species.g + mate.species.g) * 0.5,
+      b: (this.species.b + mate.species.b) * 0.5
+    } : {
       speed: this.speed,
       size: this.size,
       vision: this.vision,
@@ -162,18 +223,21 @@ export class Organism {
       r: this.species.r,
       g: this.species.g,
       b: this.species.b
-    }, env.event.mutation);
+    };
+    const mutated = mutateTraits(parentSeed, env.event.mutation);
     const maybeNewSpecies =
       colorDistance(mutated, this.species) > 24 ||
       morphologyDistance(mutated, this.species) > 3.6 ||
       chance(0.01 * Math.max(1, env.event.mutation));
     const species = maybeNewSpecies ? createSpecies(mutated) : this.species;
+    const baseX = mate ? (this.x + mate.x) * 0.5 : this.x;
+    const baseY = mate ? (this.y + mate.y) * 0.5 : this.y;
     return new Organism(
-      clamp(this.x + random(-10, 10), 1, WORLD_WIDTH - 1),
-      clamp(this.y + random(-10, 10), 1, WORLD_HEIGHT - 1),
+      clamp(baseX + random(-10, 10), 1, WORLD_WIDTH - 1),
+      clamp(baseY + random(-10, 10), 1, WORLD_HEIGHT - 1),
       mutated,
       species,
-      this.generation + 1
+      Math.max(this.generation, mate?.generation ?? this.generation) + 1
     );
   }
 
