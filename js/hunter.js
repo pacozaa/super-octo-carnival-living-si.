@@ -1,5 +1,6 @@
 import { random, clamp, distance, distanceSq } from './utils.js';
-import { WORLD_WIDTH, WORLD_HEIGHT, HUNTER_MIN_SPEED, HUNTER_MAX_SPEED, HUNTER_MIN_SIZE, HUNTER_MAX_SIZE, HUNTER_MIN_VISION, HUNTER_MAX_VISION, HUNTER_BASE_DRAIN, HUNTER_SIZE_DRAIN_FACTOR, PREY_SIZE_SCORE_WEIGHT, MIN_PREY_DISTANCE, HUNTER_REPRODUCTION_ENERGY, HUNTER_REPRODUCTION_COST, MAX_HUNTERS } from './constants.js';
+import { WORLD_WIDTH, WORLD_HEIGHT, MIN_PREY_DISTANCE, HUNTER_REPRODUCTION_ENERGY, HUNTER_REPRODUCTION_COST, HUNTER_MIN_SIZE, HUNTER_MAX_SIZE, HUNTER_MIN_VISION, HUNTER_MAX_VISION, HUNTER_SIZE_DRAIN_FACTOR } from './constants.js';
+import { config } from './config.js';
 
 export class Hunter {
   constructor(x, y, generation = 1) {
@@ -8,7 +9,7 @@ export class Hunter {
     this.energy = random(92, 125);
     this.age = 0;
     this.generation = generation;
-    this.speed = random(HUNTER_MIN_SPEED, HUNTER_MAX_SPEED);
+    this.speed = random(config.HUNTER_MIN_SPEED, config.HUNTER_MAX_SPEED);
     this.size = random(HUNTER_MIN_SIZE, HUNTER_MAX_SIZE);
     this.vision = random(HUNTER_MIN_VISION, HUNTER_MAX_VISION);
     this.vx = random(-1, 1);
@@ -33,20 +34,20 @@ export class Hunter {
     this.vx /= norm;
     this.vy /= norm;
 
-    this.x = clamp(this.x + this.vx * this.speed * 0.5, 1, WORLD_WIDTH - 1);
-    this.y = clamp(this.y + this.vy * this.speed * 0.5, 1, WORLD_HEIGHT - 1);
+    this.x = clamp(this.x + this.vx * this.speed * config.MOVEMENT_SPEED_MULTIPLIER, 1, WORLD_WIDTH - 1);
+    this.y = clamp(this.y + this.vy * this.speed * config.MOVEMENT_SPEED_MULTIPLIER, 1, WORLD_HEIGHT - 1);
     if (this.x <= 1 || this.x >= WORLD_WIDTH - 1) this.vx *= -1;
     if (this.y <= 1 || this.y >= WORLD_HEIGHT - 1) this.vy *= -1;
 
     if (hunt && distanceSq(this.x, this.y, hunt.prey.x, hunt.prey.y) < (this.size + hunt.prey.size + 4) ** 2) {
-      const drain = Math.min(hunt.prey.energy, HUNTER_BASE_DRAIN + this.size * HUNTER_SIZE_DRAIN_FACTOR);
+      const drain = Math.min(hunt.prey.energy, config.HUNTER_BASE_DRAIN + this.size * HUNTER_SIZE_DRAIN_FACTOR);
       hunt.prey.energy -= drain;
       this.energy += drain * 0.92;
     }
 
     this.energy -= 0.42 + this.speed * 0.18 + env.getTravelPenalty(this.x, this.y) * 0.4;
 
-    if (this.energy > HUNTER_REPRODUCTION_ENERGY && hunters.length < MAX_HUNTERS) {
+    if (this.energy > HUNTER_REPRODUCTION_ENERGY && hunters.length < config.MAX_HUNTERS) {
       this.energy -= HUNTER_REPRODUCTION_COST;
       return new Hunter(
         clamp(this.x + random(-18, 18), 1, WORLD_WIDTH - 1),
@@ -64,7 +65,7 @@ export class Hunter {
     for (const organism of organisms) {
       const dist = distance(this.x, this.y, organism.x, organism.y);
       if (dist > this.vision) continue;
-      const score = (organism.energy + organism.size * PREY_SIZE_SCORE_WEIGHT) / Math.max(dist, MIN_PREY_DISTANCE);
+      const score = (organism.energy + organism.size * config.PREY_SIZE_SCORE_WEIGHT) / Math.max(dist, MIN_PREY_DISTANCE);
       if (score > bestScore) {
         bestScore = score;
         best = { prey: organism };

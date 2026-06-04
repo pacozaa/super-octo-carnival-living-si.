@@ -1,7 +1,8 @@
 import { random, clamp, distance, chance } from './utils.js';
-import { WORLD_WIDTH, WORLD_HEIGHT, CELL, GRID_W, GRID_H, REPRODUCTION_ENERGY, REPRODUCTION_COST, TICK_DAMAGE, ORGANISM_MIN_SAFETY_RADIUS, SAFETY_RADIUS_VISION_FACTOR, MAX_ORGANISMS } from './constants.js';
+import { WORLD_WIDTH, WORLD_HEIGHT, CELL, GRID_W, GRID_H, ORGANISM_MIN_SAFETY_RADIUS, SAFETY_RADIUS_VISION_FACTOR } from './constants.js';
 import { speciesColor, colorDistance, createSpecies, describeVertebrateForm, morphologyDistance } from './species.js';
 import { mutateTraits } from './traits.js';
+import { config } from './config.js';
 
 const BASE_MATURITY = 0.72;
 const MAX_MATURITY_AGE = 900;
@@ -69,24 +70,24 @@ export class Organism {
       this.steer(target, env.event.instability);
     }
 
-    this.x = clamp(this.x + this.vx * this.speed * 0.5, 1, WORLD_WIDTH - 1);
-    this.y = clamp(this.y + this.vy * this.speed * 0.5, 1, WORLD_HEIGHT - 1);
+    this.x = clamp(this.x + this.vx * this.speed * config.MOVEMENT_SPEED_MULTIPLIER, 1, WORLD_WIDTH - 1);
+    this.y = clamp(this.y + this.vy * this.speed * config.MOVEMENT_SPEED_MULTIPLIER, 1, WORLD_HEIGHT - 1);
     if (this.x <= 1 || this.x >= WORLD_WIDTH - 1) this.vx *= -1;
     if (this.y <= 1 || this.y >= WORLD_HEIGHT - 1) this.vy *= -1;
 
     const intake = env.eat(this.x, this.y, 2.5 + this.size * 0.9);
     this.energy += intake * (0.65 + this.fertility);
-    this.energy -= TICK_DAMAGE + this.speed * 0.13 + this.size * 0.08 + env.getTravelPenalty(this.x, this.y);
+    this.energy -= config.TICK_DAMAGE + this.speed * 0.13 + this.size * 0.08 + env.getTravelPenalty(this.x, this.y);
     if (threat) this.energy -= 0.06;
 
-    if (!threat && organisms.length < MAX_ORGANISMS) {
+    if (!threat && organisms.length < config.MAX_ORGANISMS) {
       const mate = this.findMate(organisms);
       if (
         mate &&
-        this.energy > REPRODUCTION_ENERGY + BREEDING_ENERGY_BUFFER &&
-        mate.energy > REPRODUCTION_ENERGY + BREEDING_ENERGY_BUFFER
+        this.energy > config.REPRODUCTION_ENERGY + BREEDING_ENERGY_BUFFER &&
+        mate.energy > config.REPRODUCTION_ENERGY + BREEDING_ENERGY_BUFFER
       ) {
-        const sharedCost = REPRODUCTION_COST * 0.58;
+        const sharedCost = config.REPRODUCTION_COST * 0.58;
         this.energy -= sharedCost;
         mate.energy -= sharedCost;
         this.state = "spawning";
@@ -96,8 +97,8 @@ export class Organism {
         return this.reproduce(env, mate);
       }
 
-      if (this.energy > REPRODUCTION_ENERGY) {
-        this.energy -= REPRODUCTION_COST;
+      if (this.energy > config.REPRODUCTION_ENERGY) {
+        this.energy -= config.REPRODUCTION_COST;
         this.state = "spawning";
         this.breedCooldown = BREEDING_COOLDOWN;
         return this.reproduce(env);
@@ -115,7 +116,7 @@ export class Organism {
       if (candidate === this) continue;
       if (candidate.species.id !== this.species.id) continue;
       if (candidate.age < BREEDING_AGE || candidate.breedCooldown > 0) continue;
-      if (candidate.energy <= REPRODUCTION_ENERGY + BREEDING_ENERGY_BUFFER) continue;
+      if (candidate.energy <= config.REPRODUCTION_ENERGY + BREEDING_ENERGY_BUFFER) continue;
       if (candidate.state === "fleeing") continue;
       const dist = distance(this.x, this.y, candidate.x, candidate.y);
       if (dist < range && dist < bestDistance) {
