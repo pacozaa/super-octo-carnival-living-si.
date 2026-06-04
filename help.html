@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Living Simulator Help</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0a0f16;
+      color: #d5e2f3;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      line-height: 1.6;
+      padding: 18px;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+    h1, h2 {
+      margin-top: 0;
+      color: #eef5ff;
+    }
+    section {
+      background: #111b28;
+      border: 1px solid #274466;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    code {
+      color: #9bd4ff;
+      white-space: normal;
+      word-break: break-word;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 4px;
+      margin-bottom: 14px;
+      color: #b6cff0;
+      text-decoration: none;
+      border: 1px solid #274466;
+      border-radius: 6px;
+      padding: 6px 10px;
+      background: #111b28;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Stats &amp; Graphics Help</h1>
+    <a class="back-link" href="./index.html">← Back to simulator</a>
+
+    <section>
+      <h2>Reading the top stat line</h2>
+      <p>Example:</p>
+      <p><code>Time: 28673 Population: 450 Hunters: 10 Species: 91 Max generation: 17 Alerted: 41 Dominant: S1:256 S340:9 S900:8 S990:7</code></p>
+      <ul>
+        <li><strong>Time</strong>: Total simulation ticks elapsed since reset.</li>
+        <li><strong>Population</strong>: Number of living organisms (prey/evolving species) currently on the map.</li>
+        <li><strong>Hunters</strong>: Number of living red apex predators.</li>
+        <li><strong>Species</strong>: Number of distinct species IDs alive right now.</li>
+        <li><strong>Max generation</strong>: Highest generation value among living organisms.</li>
+        <li><strong>Alerted</strong>: Organisms currently in <em>fleeing</em> state because a hunter is within their safety radius.</li>
+        <li><strong>Dominant</strong>: Most numerous species at this moment, listed as <code>S&lt;speciesId&gt;:&lt;count&gt;</code>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Breeding and population growth</h2>
+      <p>Population grows through reproduction:</p>
+      <ul>
+        <li>Organisms can now <strong>breed with nearby mature partners</strong> from the same species when both have enough energy and are not fleeing hunters.</li>
+        <li>Breeding blends parent traits, then applies mutation pressure from the current climate event. Offspring generation is parent max generation + 1.</li>
+        <li>If no mate is available, high-energy organisms can still reproduce alone.</li>
+        <li>Hunters also reproduce when they gain enough energy from successful hunts.</li>
+        <li>Population is capped by simulator limits, so growth eventually stabilizes under pressure.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Main visuals and indicators</h2>
+      <ul>
+        <li><strong>Background grid color</strong>: Nutrient density and climate tint. Brighter/greener cells usually provide more food.</li>
+        <li><strong>Colored organisms</strong>: Evolving prey populations; color and shape indicate lineage and form progression.</li>
+        <li><strong>Red triangular entities</strong>: Hunters (predators) that chase and drain prey energy.</li>
+        <li><strong>Species tooltip (hover/click on organism)</strong>: Species population, average generation, current state, and trait values.</li>
+        <li><strong>Details line under stats</strong>:
+          season pulse, current climate event, mutation pressure, average energy, <strong>births this frame</strong>, apex hunter generation, and dominant body forms.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

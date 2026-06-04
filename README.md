@@ -37,6 +37,7 @@ Then open `http://localhost:8080`.
 - Track hunter pressure as apex predators spawn, chase prey, and reproduce.
 - Use **Speed** (`1x` to `80x`) to move from slow observation to rapid simulation.
 - Use **Pause** to inspect a stable moment and **Reset** to generate a new world.
+- Use **Stats & graphics help** from the main toolbar for a full explanation of stats, breeding, and visual indicators.
 - Follow the stat bar to understand the run:
   - **Population**: active organisms
   - **Hunters**: apex predators on the map
