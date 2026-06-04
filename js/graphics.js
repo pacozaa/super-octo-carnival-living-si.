@@ -9,6 +9,15 @@ const SPOT_SIZE_FREQUENCY = 2.1; // Frequency multiplier for deterministic spot 
 const LEFT_EYE_POSITION = { xOffset: 0.3, yOffset: -0.4 };  // Hunter left eye position multipliers
 const RIGHT_EYE_POSITION = { xOffset: -0.3, yOffset: -0.4 }; // Hunter right eye position multipliers
 
+// Pattern drawing constants
+const SPOTS_PATTERN_X_FREQ = 0.7;  // Spot pattern X position frequency
+const SPOTS_PATTERN_Y_FREQ = 1.3;  // Spot pattern Y position frequency
+const ROUGH_TEXTURE_FREQUENCY = 1.7;  // Rough texture variation frequency
+const ROUGH_TEXTURE_BASE_SIZE = 0.8;  // Base size for rough texture
+const ROUGH_TEXTURE_SIZE_VARIATION = 0.4;  // Size variation factor for rough texture
+const FUR_LIKE_POSITION_X_FREQ = 0.4;  // Fur-like texture X positioning frequency
+const FUR_LIKE_POSITION_Y_FREQ = 0.35; // Fur-like texture Y positioning frequency
+
 /**
  * Get complementary/accent color based on primary color for visual contrast
  */
@@ -75,9 +84,9 @@ const drawFormPattern = (ctx, pattern, bodyLength, bodyHeight, color, isDark, ac
     case 'spots':
       // Draw spot pattern
       for (let i = 0; i < 8; i++) {
-        const spotX = (Math.sin(i * 0.7) * bodyLength * 0.35);
-        const spotY = (Math.cos(i * 0.7) * bodyHeight * 0.35);
-        const spotSize = 1 + Math.abs(Math.sin(i * 1.3));
+        const spotX = (Math.sin(i * SPOTS_PATTERN_X_FREQ) * bodyLength * 0.35);
+        const spotY = (Math.cos(i * SPOTS_PATTERN_X_FREQ) * bodyHeight * 0.35);
+        const spotSize = 1 + Math.abs(Math.sin(i * SPOTS_PATTERN_Y_FREQ));
         ctx.beginPath();
         ctx.arc(spotX, spotY, spotSize, 0, Math.PI * 2);
         ctx.fill();
@@ -88,7 +97,7 @@ const drawFormPattern = (ctx, pattern, bodyLength, bodyHeight, color, isDark, ac
       for (let i = 0; i < 12; i++) {
         const x = (Math.sin(i * 0.5) * bodyLength * 0.4);
         const y = (Math.cos(i * 0.5) * bodyHeight * 0.35);
-        const sizeVariation = 0.8 + Math.abs(Math.sin(i * 1.7)) * 0.4;
+        const sizeVariation = ROUGH_TEXTURE_BASE_SIZE + Math.abs(Math.sin(i * ROUGH_TEXTURE_FREQUENCY)) * ROUGH_TEXTURE_SIZE_VARIATION;
         ctx.beginPath();
         ctx.arc(x, y, sizeVariation, 0, Math.PI * 2);
         ctx.fill();
@@ -98,8 +107,8 @@ const drawFormPattern = (ctx, pattern, bodyLength, bodyHeight, color, isDark, ac
       // Draw hair-like texture
       ctx.lineWidth = 0.5;
       for (let i = 0; i < 15; i++) {
-        const startX = (Math.sin(i * 0.4) * bodyLength * 0.35);
-        const startY = (Math.cos(i * 0.4) * bodyHeight * 0.35);
+        const startX = (Math.sin(i * FUR_LIKE_POSITION_X_FREQ) * bodyLength * 0.35);
+        const startY = (Math.cos(i * FUR_LIKE_POSITION_Y_FREQ) * bodyHeight * 0.35);
         const angle = Math.atan2(startY, startX);
         ctx.beginPath();
         ctx.moveTo(startX, startY);
