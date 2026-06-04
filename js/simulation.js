@@ -137,9 +137,13 @@ export class Simulation {
 
     const FORM_FACTS = {
       'Protofish':   'A primitive aquatic ancestor — fins and tail dominate its form.',
+      'Tiktaalik':   'Transitional fossil between fish and tetrapods; early wrist bones emerge.',
       'Lobe-fin':    'Lobe-finned fish; early limb buds hint at a life on land.',
       'Amphibian':   'Crawls between water and land, pioneer of terrestrial life.',
+      'Synapsid':    'Mammal-like reptile; ancestors of modern mammals with unique skull openings.',
       'Reptile':     'Fully terrestrial — scaled skin and sturdy limbs define it.',
+      'Diapsid':     'Reptile with two skull openings; ancestor of dinosaurs, birds, and lizards.',
+      'Dinosaur':    'Dominant terrestrial vertebrate; powerful legs and upright posture.',
       'Avian':       'Winged apex form; lightweight and built for speed.',
     };
 

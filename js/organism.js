@@ -335,7 +335,7 @@ export class Organism {
       }
     }
 
-    if (profile.stageIndex >= 4 || profile.wing > 1.4) {
+    if (profile.stageIndex >= 7 || profile.wing > 1.4) {
       const wingSpan = profile.wing + bodyLength * 0.2;
       ctx.globalAlpha = 0.35;
       ctx.beginPath();

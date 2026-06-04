@@ -7,7 +7,7 @@ export const GRID_H = Math.floor(WORLD_HEIGHT / CELL);
 
 // Organism population
 export const BASE_ORGANISMS = 48;
-export const MAX_ORGANISMS = 105000;
+export const MAX_ORGANISMS = 1521;
 
 // Organism traits and behavior
 export const REPRODUCTION_ENERGY = 120;
