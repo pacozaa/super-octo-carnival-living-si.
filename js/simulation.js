@@ -1,5 +1,5 @@
 import { random } from './utils.js';
-import { BASE_ORGANISMS, MAX_ORGANISMS, MAX_HUNTERS, HUNTER_SPAWN_INTERVAL, MIN_POPULATION_FOR_HUNTER_SPAWN, WORLD_WIDTH, WORLD_HEIGHT, APOCALYPSE_MIN_INTERVAL, APOCALYPSE_MAX_INTERVAL, APOCALYPSE_MIN_KILL_PERCENT, APOCALYPSE_MAX_KILL_PERCENT } from './constants.js';
+import { BASE_ORGANISMS, MAX_ORGANISMS, MAX_HUNTERS, HUNTER_SPAWN_INTERVAL, MIN_POPULATION_FOR_HUNTER_SPAWN, WORLD_WIDTH, WORLD_HEIGHT, APOCALYPSE_MIN_INTERVAL, APOCALYPSE_MAX_INTERVAL, APOCALYPSE_MIN_KILL_PERCENT, APOCALYPSE_MAX_KILL_PERCENT, APOCALYPSE_MIN_POPULATION } from './constants.js';
 import { Environment } from './environment.js';
 import { Organism } from './organism.js';
 import { Hunter } from './hunter.js';
@@ -76,7 +76,7 @@ export class Simulation {
       if (this.time % HUNTER_SPAWN_INTERVAL === 0 && this.organisms.length > MIN_POPULATION_FOR_HUNTER_SPAWN && this.hunters.length < MAX_HUNTERS) {
         this.spawnHunters(1);
       }
-      if (this.time >= this.nextApocalypse && this.organisms.length > 50) {
+      if (this.time >= this.nextApocalypse && this.organisms.length > APOCALYPSE_MIN_POPULATION) {
         this.triggerApocalypse();
       }
     }
@@ -90,7 +90,7 @@ export class Simulation {
     // Randomly select organisms to kill
     const shuffled = [...this.organisms];
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(random(0, i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     
