@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Living Simulator</title>
   <style>
+    :root {
+      --world-canvas-max-width: 900px;
+    }
     body {
       margin: 0;
       background: #0a0f16;
@@ -12,8 +15,8 @@
       font-family: ui-sans-serif, system-ui, sans-serif;
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
+      overflow: auto;
     }
     .app-header {
       padding: 12px;
@@ -23,6 +26,11 @@
     .app-header h1 {
       margin: 0;
       font-size: 20px;
+    }
+    .app-subtitle {
+      margin: 6px 0 0 0;
+      font-size: 13px;
+      color: #9eb7d4;
     }
     .main-container {
       display: flex;
@@ -90,6 +98,35 @@
       border-radius: 8px;
       image-rendering: pixelated;
       cursor: crosshair;
+    }
+    #world {
+      width: min(100%, var(--world-canvas-max-width));
+      height: auto;
+      aspect-ratio: 900 / 560;
+      box-sizing: border-box;
+    }
+    .experience-highlights {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+    .highlight-card {
+      background: #0d1a2a;
+      border: 1px solid #274466;
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .highlight-card strong {
+      font-size: 13px;
+      color: #eef5ff;
+    }
+    .highlight-card span {
+      font-size: 12px;
+      color: #9eb7d4;
+      line-height: 1.35;
     }
     #species-tooltip {
       position: fixed;
@@ -243,18 +280,89 @@
       border-radius: 6px;
       background: #0d1a2a;
       display: block;
+      cursor: default;
+    }
+    @media (max-width: 960px) {
+      .main-container {
+        flex-direction: column;
+        overflow: visible;
+      }
+      .left-panel {
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .right-panel {
+        width: 100%;
+        box-sizing: border-box;
+        overflow: visible;
+      }
+    }
+    @media (max-width: 720px) {
+      .app-header {
+        text-align: left;
+      }
+      .app-header h1 {
+        font-size: 19px;
+      }
+      .left-panel {
+        padding: 10px;
+      }
+      #world {
+        width: 100%;
+      }
+      .right-panel {
+        padding: 10px;
+      }
+      .controls {
+        gap: 6px;
+      }
+      .controls label {
+        width: 100%;
+        font-size: 13px;
+      }
+      .controls select,
+      .controls button,
+      .controls .link-btn {
+        min-height: 38px;
+        font-size: 13px;
+      }
+      .controls button,
+      .controls .link-btn {
+        flex: 1 1 45%;
+        text-align: center;
+      }
+      .controls select {
+        width: 100%;
+      }
+      .experience-highlights {
+        grid-template-columns: 1fr;
+      }
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
   <div class="app-header">
     <h1 data-testid="app-title">Living Simulator</h1>
+    <p class="app-subtitle">Watch species adapt in real-time as world pressure and predators shape evolution.</p>
   </div>
   <div class="main-container">
     <div class="left-panel">
       <canvas id="world" width="900" height="560" data-testid="simulation-canvas"></canvas>
     </div>
     <div class="right-panel">
+      <div class="experience-highlights">
+        <div class="highlight-card">
+          <strong>Live simulator focus</strong>
+          <span>Play, pause, and adjust simulation speed to inspect behavior from first moments to late-stage ecosystems.</span>
+        </div>
+        <div class="highlight-card">
+          <strong>World evolution view</strong>
+          <span>Use replay timeline and trait tracking to follow branching species, pressure shifts, and mutation trends.</span>
+        </div>
+      </div>
       <div class="controls" data-testid="controls-panel">
         <label for="speed">Speed</label>
         <select id="speed" data-testid="speed-select">
