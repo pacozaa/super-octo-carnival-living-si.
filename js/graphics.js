@@ -23,6 +23,19 @@ const TRAIT_MIN_VISION = 16;
 const TRAIT_MAX_VISION = 140;
 const HIGH_ENERGY_LEVEL = 125;
 const LOW_ENERGY_LEVEL = 24;
+const ORGANISM_TRAIL_THRESHOLD = 0.45;
+const HUNTER_TRAIL_THRESHOLD = 0.5;
+const HUNTER_MIN_SPEED = 1.05;
+const HUNTER_MAX_SPEED = 1.75;
+const HUNTER_LOW_ENERGY_LEVEL = 28;
+const TRAIL_STRENGTH_OFFSET = 0.3;
+const ORGANISM_TRAIL_MIN_ALPHA = 0.04;
+const ORGANISM_TRAIL_BASE_ALPHA = 0.2;
+const ORGANISM_TRAIL_FADE_STEP = 0.05;
+const HUNTER_TRAIL_ALPHA = 0.13;
+const HUNTER_TRAIL_OFFSET = 7;
+const VISION_ARC_BASE = 0.54;
+const VISION_ARC_VARIATION = 0.12;
 
 const clamp01 = (value) => Math.max(0, Math.min(1, value));
 const clamp255 = (value) => Math.max(0, Math.min(255, Math.round(value)));
@@ -52,6 +65,7 @@ const getOrganismPalette = (organism) => {
   const base = { r: organism.species.r, g: organism.species.g, b: organism.species.b };
   let color = { ...base };
 
+  // Visual precedence: behavior cue (fleeing), vitality cue (fed/high), then danger cue (low energy).
   if (organism.state === 'fleeing') {
     color = shiftSaturation(color, -0.55);
     color = mixColor(color, { r: 112, g: 158, b: 224 }, 0.24);
@@ -232,13 +246,13 @@ export const drawEnhancedOrganism = (ctx, organism, profile, bodyLength, bodyHei
   const eyeScale = 1 + visionFactor * 0.35;
   const spawnScale = organism.spawnTicks > 0 ? 0.55 + (1 - clamp01(organism.spawnTicks / 16)) * 0.45 : 1;
   
-  if (speedFactor > 0.34) {
-    for (let i = 1; i <= 3; i++) {
-      const trailStrength = (speedFactor - 0.3) * i;
+  if (speedFactor > ORGANISM_TRAIL_THRESHOLD) {
+    for (let i = 1; i <= 2; i++) {
+      const trailStrength = (speedFactor - TRAIL_STRENGTH_OFFSET) * i;
       const ghostX = organism.x - organism.vx * (3 + trailStrength * 4) * i;
       const ghostY = organism.y - organism.vy * (3 + trailStrength * 4) * i;
       ctx.save();
-      ctx.globalAlpha = Math.max(0.04, 0.2 - i * 0.05);
+      ctx.globalAlpha = Math.max(ORGANISM_TRAIL_MIN_ALPHA, ORGANISM_TRAIL_BASE_ALPHA - i * ORGANISM_TRAIL_FADE_STEP);
       ctx.translate(ghostX, ghostY);
       ctx.rotate(angle);
       ctx.scale(stretchX * 0.95, bulkY * 0.95);
@@ -253,7 +267,7 @@ export const drawEnhancedOrganism = (ctx, organism, profile, bodyLength, bodyHei
   ctx.save();
   ctx.translate(organism.x, organism.y);
   ctx.rotate(angle);
-  const visionArc = Math.PI * (0.54 - visionFactor * 0.12);
+  const visionArc = Math.PI * (VISION_ARC_BASE - visionFactor * VISION_ARC_VARIATION);
   ctx.fillStyle = isDark ? 'rgba(170, 206, 255, 0.06)' : 'rgba(60, 115, 178, 0.08)';
   ctx.beginPath();
   ctx.moveTo(0, 0);
@@ -464,9 +478,9 @@ export const drawEnhancedOrganism = (ctx, organism, profile, bodyLength, bodyHei
  * Enhanced hunter drawing with more distinctive predatory appearance
  */
 export const drawEnhancedHunter = (ctx, hunter) => {
-  const speedFactor = traitFactor(hunter.speed, 1.05, 1.75);
+  const speedFactor = traitFactor(hunter.speed, HUNTER_MIN_SPEED, HUNTER_MAX_SPEED);
   const warmFactor = clamp01(hunter.fedTicks / 16);
-  const lowEnergyFade = clamp01((28 - hunter.energy) / 28);
+  const lowEnergyFade = clamp01((HUNTER_LOW_ENERGY_LEVEL - hunter.energy) / HUNTER_LOW_ENERGY_LEVEL);
   const bodyColor = mixColor(
     mixColor({ r: 230, g: 57, b: 70 }, { r: 255, g: 190, b: 100 }, warmFactor * 0.5),
     { r: 135, g: 135, b: 135 },
@@ -475,22 +489,20 @@ export const drawEnhancedHunter = (ctx, hunter) => {
   const bodyFill = `rgb(${bodyColor.r}, ${bodyColor.g}, ${bodyColor.b})`;
   const spawnScale = hunter.spawnTicks > 0 ? 0.6 + (1 - clamp01(hunter.spawnTicks / 14)) * 0.4 : 1;
 
-  if (speedFactor > 0.35) {
-    for (let i = 1; i <= 2; i++) {
-      ctx.save();
-      ctx.globalAlpha = 0.18 - i * 0.05;
-      ctx.translate(hunter.x - hunter.vx * 7 * i, hunter.y - hunter.vy * 7 * i);
-      const ghostAngle = Math.atan2(hunter.vy, hunter.vx) + Math.PI / 2;
-      ctx.rotate(ghostAngle);
-      ctx.fillStyle = bodyFill;
-      ctx.beginPath();
-      ctx.moveTo(0, -hunter.size - 2);
-      ctx.lineTo(hunter.size * 0.75, hunter.size * 0.95);
-      ctx.lineTo(-hunter.size * 0.75, hunter.size * 0.95);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-    }
+  if (speedFactor > HUNTER_TRAIL_THRESHOLD) {
+    ctx.save();
+    ctx.globalAlpha = HUNTER_TRAIL_ALPHA;
+    ctx.translate(hunter.x - hunter.vx * HUNTER_TRAIL_OFFSET, hunter.y - hunter.vy * HUNTER_TRAIL_OFFSET);
+    const ghostAngle = Math.atan2(hunter.vy, hunter.vx) + Math.PI / 2;
+    ctx.rotate(ghostAngle);
+    ctx.fillStyle = bodyFill;
+    ctx.beginPath();
+    ctx.moveTo(0, -hunter.size - 2);
+    ctx.lineTo(hunter.size * 0.75, hunter.size * 0.95);
+    ctx.lineTo(-hunter.size * 0.75, hunter.size * 0.95);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
   }
 
   ctx.save();

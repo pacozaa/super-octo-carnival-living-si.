@@ -18,6 +18,8 @@ const SNAPSHOT_MILESTONE_LIMIT = 40;
 const SPAWN_ANIMATION_TICKS = 16;
 const DEATH_EFFECT_TICKS = 22;
 const SPAWN_EFFECT_TICKS = 14;
+const SPAWN_EFFECT_RADIUS_MULTIPLIER = 2.1;
+const DEATH_EFFECT_RADIUS_MULTIPLIER = 2.4;
 const deepClone = (value) => {
   if (typeof structuredClone === 'function') {
     try {
@@ -195,7 +197,7 @@ export class Simulation {
         type: 'spawn',
         x: entity.x,
         y: entity.y,
-        radius: Math.max(5, entity.size * 2.1),
+        radius: Math.max(5, entity.size * SPAWN_EFFECT_RADIUS_MULTIPLIER),
         age: 0,
         duration: SPAWN_EFFECT_TICKS,
         isHunter
@@ -209,7 +211,7 @@ export class Simulation {
         type: 'death',
         x: entity.x,
         y: entity.y,
-        radius: Math.max(6, entity.size * 2.4),
+        radius: Math.max(6, entity.size * DEATH_EFFECT_RADIUS_MULTIPLIER),
         age: 0,
         duration: DEATH_EFFECT_TICKS,
         color: isHunter
