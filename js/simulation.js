@@ -37,7 +37,7 @@ export class Simulation {
     this.hunters = [];
     this.lastBirths = 0;
     this.spawnHunters(2);
-    this.nextApocalypse = this.time + random(APOCALYPSE_MIN_INTERVAL, APOCALYPSE_MAX_INTERVAL);
+    this.scheduleNextApocalypse();
     this.lastApocalypseKills = 0;
   }
 
@@ -90,7 +90,8 @@ export class Simulation {
     // Randomly select organisms to kill (Fisher-Yates shuffle)
     const shuffled = [...this.organisms];
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(random(0, i));
+      // random(0, i + 1) gives [0, i+1), which includes 0 to i inclusive
+      const j = Math.floor(random(0, i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     
@@ -104,8 +105,12 @@ export class Simulation {
     
     // Schedule next apocalypse only if this was automatic
     if (automatic) {
-      this.nextApocalypse = this.time + random(APOCALYPSE_MIN_INTERVAL, APOCALYPSE_MAX_INTERVAL);
+      this.scheduleNextApocalypse();
     }
+  }
+
+  scheduleNextApocalypse() {
+    this.nextApocalypse = this.time + random(APOCALYPSE_MIN_INTERVAL, APOCALYPSE_MAX_INTERVAL);
   }
 
   seedRescuePopulation() {
