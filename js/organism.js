@@ -114,7 +114,7 @@ export class Organism {
       if (candidate === this) continue;
       if (candidate.species.id !== this.species.id) continue;
       if (candidate.age < BREEDING_AGE || candidate.breedCooldown > 0) continue;
-      if (candidate.energy <= REPRODUCTION_ENERGY) continue;
+      if (candidate.energy <= REPRODUCTION_ENERGY + BREEDING_ENERGY_BUFFER) continue;
       if (candidate.state === "fleeing") continue;
       const dist = distance(this.x, this.y, candidate.x, candidate.y);
       if (dist < range && dist < bestDistance) {
@@ -230,9 +230,11 @@ export class Organism {
       morphologyDistance(mutated, this.species) > 3.6 ||
       chance(0.01 * Math.max(1, env.event.mutation));
     const species = maybeNewSpecies ? createSpecies(mutated) : this.species;
+    const baseX = mate ? (this.x + mate.x) * 0.5 : this.x;
+    const baseY = mate ? (this.y + mate.y) * 0.5 : this.y;
     return new Organism(
-      clamp((mate ? (this.x + mate.x) * 0.5 : this.x) + random(-10, 10), 1, WORLD_WIDTH - 1),
-      clamp((mate ? (this.y + mate.y) * 0.5 : this.y) + random(-10, 10), 1, WORLD_HEIGHT - 1),
+      clamp(baseX + random(-10, 10), 1, WORLD_WIDTH - 1),
+      clamp(baseY + random(-10, 10), 1, WORLD_HEIGHT - 1),
       mutated,
       species,
       Math.max(this.generation, mate?.generation ?? this.generation) + 1
