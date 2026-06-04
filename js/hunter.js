@@ -1,5 +1,6 @@
 import { random, clamp, distance, distanceSq } from './utils.js';
 import { WORLD_WIDTH, WORLD_HEIGHT, HUNTER_MIN_SPEED, HUNTER_MAX_SPEED, HUNTER_MIN_SIZE, HUNTER_MAX_SIZE, HUNTER_MIN_VISION, HUNTER_MAX_VISION, HUNTER_BASE_DRAIN, HUNTER_SIZE_DRAIN_FACTOR, PREY_SIZE_SCORE_WEIGHT, MIN_PREY_DISTANCE, HUNTER_REPRODUCTION_ENERGY, HUNTER_REPRODUCTION_COST, MAX_HUNTERS } from './constants.js';
+import { drawEnhancedHunter } from './graphics.js';
 
 export class Hunter {
   constructor(x, y, generation = 1) {
@@ -84,18 +85,6 @@ export class Hunter {
   }
 
   draw(ctx) {
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    const angle = Math.atan2(this.vy, this.vx) + Math.PI / 2;
-    ctx.rotate(angle);
-    ctx.beginPath();
-    ctx.moveTo(0, -this.size - 3);
-    ctx.lineTo(this.size * 0.8, this.size);
-    ctx.lineTo(0, this.size * 0.35);
-    ctx.lineTo(-this.size * 0.8, this.size);
-    ctx.closePath();
-    ctx.fillStyle = "#ff6b6b";
-    ctx.fill();
-    ctx.restore();
+    drawEnhancedHunter(ctx, this);
   }
 }
