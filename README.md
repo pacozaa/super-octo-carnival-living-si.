@@ -61,6 +61,14 @@ Then open `http://localhost:8080`.
 - Replay timeline with jump-to-moment state restoration
 - Trait trend chart with mutation-stick markers
 
+## Visual behavior cues
+
+- **Facing direction + perception cone:** organisms rotate toward movement, with a faint forward vision wedge.
+- **Trait-driven silhouettes:** speed stretches body shape, size increases bulk, and higher vision increases eye prominence/head brightness.
+- **State color cues:** fleeing shifts organisms toward cool/desaturated tones, high-energy turns warmer, and low-energy fades toward grayscale.
+- **Pursuit indicator:** hunters with an active prey lock show a subtle red outline.
+- **Motion trails + lifecycle effects:** fast movers leave short ghost trails, births pulse in, and deaths emit a brief particle burst.
+
 ## Screenshots
 
 ### Early simulation overview
