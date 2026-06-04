@@ -51,6 +51,8 @@ export class Organism {
     this.vy = random(-1, 1);
     this.state = "foraging";
     this.breedCooldown = 0;
+    this.fedTicks = 0;
+    this.spawnTicks = 0;
   }
 
   get alive() {
@@ -60,6 +62,8 @@ export class Organism {
   step(env, organisms, hunters) {
     this.age += 1;
     if (this.breedCooldown > 0) this.breedCooldown -= 1;
+    if (this.fedTicks > 0) this.fedTicks -= 1;
+    if (this.spawnTicks > 0) this.spawnTicks -= 1;
     const threat = this.findThreat(hunters);
     const target = threat ? null : this.findRichTarget(env);
 
@@ -78,6 +82,7 @@ export class Organism {
 
     const intake = env.eat(this.x, this.y, 2.5 + this.size * 0.9);
     this.energy += intake * (0.65 + this.fertility);
+    if (intake > 0.1) this.fedTicks = 18;
     this.energy -= config.TICK_DAMAGE + this.speed * 0.13 + this.size * 0.08 + env.getTravelPenalty(this.x, this.y);
     if (threat) this.energy -= 0.06;
 
