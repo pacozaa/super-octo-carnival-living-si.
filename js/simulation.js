@@ -1,10 +1,11 @@
 import { random } from './utils.js';
-import { BASE_ORGANISMS, MAX_ORGANISMS, MAX_HUNTERS, HUNTER_SPAWN_INTERVAL, MIN_POPULATION_FOR_HUNTER_SPAWN, WORLD_WIDTH, WORLD_HEIGHT, APOCALYPSE_MIN_INTERVAL, APOCALYPSE_MAX_INTERVAL, APOCALYPSE_MIN_KILL_PERCENT, APOCALYPSE_MAX_KILL_PERCENT, APOCALYPSE_MIN_POPULATION } from './constants.js';
+import { WORLD_WIDTH, WORLD_HEIGHT, APOCALYPSE_MIN_KILL_PERCENT, APOCALYPSE_MAX_KILL_PERCENT, APOCALYPSE_MIN_POPULATION } from './constants.js';
 import { Environment } from './environment.js';
 import { Organism } from './organism.js';
 import { Hunter } from './hunter.js';
 import { createSpecies, resetSpeciesCounter, DEFAULT_VERTEBRATE_FORM } from './species.js';
 import { mutateTraits } from './traits.js';
+import { config } from './config.js';
 
 export class Simulation {
   constructor() {
@@ -17,7 +18,7 @@ export class Simulation {
     this.running = true;
     this.env = new Environment();
     const root = createSpecies({ r: 112, g: 181, b: 235 });
-    this.organisms = Array.from({ length: BASE_ORGANISMS }, () => {
+    this.organisms = Array.from({ length: config.BASE_ORGANISMS }, () => {
       const traits = mutateTraits({
         speed: 0.9,
         size: 4.2,
@@ -64,16 +65,16 @@ export class Simulation {
       if (cubs.length) this.hunters.push(...cubs);
       totalBirths += newborns.length + cubs.length;
 
-      if (this.organisms.length > MAX_ORGANISMS) {
+      if (this.organisms.length > config.MAX_ORGANISMS) {
         this.organisms.sort((a, b) => b.energy - a.energy);
-        this.organisms.length = MAX_ORGANISMS;
+        this.organisms.length = config.MAX_ORGANISMS;
       }
-      if (this.hunters.length > MAX_HUNTERS) {
+      if (this.hunters.length > config.MAX_HUNTERS) {
         this.hunters.sort((a, b) => b.energy - a.energy);
-        this.hunters.length = MAX_HUNTERS;
+        this.hunters.length = config.MAX_HUNTERS;
       }
       if (this.organisms.length < 14) this.seedRescuePopulation();
-      if (this.time % HUNTER_SPAWN_INTERVAL === 0 && this.organisms.length > MIN_POPULATION_FOR_HUNTER_SPAWN && this.hunters.length < MAX_HUNTERS) {
+      if (this.time % config.HUNTER_SPAWN_INTERVAL === 0 && this.organisms.length > config.MIN_POPULATION_FOR_HUNTER_SPAWN && this.hunters.length < config.MAX_HUNTERS) {
         this.spawnHunters(1);
       }
       if (this.time >= this.nextApocalypse && this.organisms.length > APOCALYPSE_MIN_POPULATION) {
@@ -110,7 +111,7 @@ export class Simulation {
   }
 
   scheduleNextApocalypse() {
-    this.nextApocalypse = this.time + Math.floor(random(APOCALYPSE_MIN_INTERVAL, APOCALYPSE_MAX_INTERVAL));
+    this.nextApocalypse = this.time + Math.floor(random(config.APOCALYPSE_MIN_INTERVAL, config.APOCALYPSE_MAX_INTERVAL));
   }
 
   seedRescuePopulation() {
@@ -129,7 +130,7 @@ export class Simulation {
   }
 
   spawnHunters(count) {
-    for (let i = 0; i < count && this.hunters.length < MAX_HUNTERS; i++) {
+    for (let i = 0; i < count && this.hunters.length < config.MAX_HUNTERS; i++) {
       const edge = Math.floor(random(0, 4));
       const x = edge % 2 === 0 ? (edge === 0 ? 18 : WORLD_WIDTH - 18) : random(24, WORLD_WIDTH - 24);
       const y = edge % 2 === 1 ? (edge === 1 ? 18 : WORLD_HEIGHT - 18) : random(24, WORLD_HEIGHT - 24);
