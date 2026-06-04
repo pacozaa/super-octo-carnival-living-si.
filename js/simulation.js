@@ -15,6 +15,11 @@ const MUTATION_MIN_INTERVAL = 180;
 const MUTATION_MILESTONE_LIMIT = 80;
 const SNAPSHOT_TRAIT_LIMIT = 120;
 const SNAPSHOT_MILESTONE_LIMIT = 40;
+const SPAWN_ANIMATION_TICKS = 16;
+const DEATH_EFFECT_TICKS = 22;
+const SPAWN_EFFECT_TICKS = 14;
+const SPAWN_EFFECT_RADIUS_MULTIPLIER = 2.1;
+const DEATH_EFFECT_RADIUS_MULTIPLIER = 2.4;
 const deepClone = (value) => {
   if (typeof structuredClone === 'function') {
     try {
@@ -71,6 +76,7 @@ export class Simulation {
     this.lastTraitSampleTime = 0;
     this.lastStableTraitSample = null;
     this.lastMutationStickTime = 0;
+    this.visualEffects = [];
 
     const root = createSpecies({ r: 112, g: 181, b: 235 });
     this.registerSpecies(root);
@@ -125,11 +131,16 @@ export class Simulation {
       const newborns = [];
       for (const organism of this.organisms) {
         const child = organism.step(this.env, this.organisms, this.hunters);
-        if (child) newborns.push(child);
+        if (child) {
+          child.spawnTicks = SPAWN_ANIMATION_TICKS;
+          newborns.push(child);
+        }
       }
+      const deadOrganisms = this.organisms.filter((organism) => !organism.alive);
       this.organisms = this.organisms.filter((o) => o.alive);
       if (newborns.length) {
         this.organisms.push(...newborns);
+        this.addSpawnEffects(newborns, false);
         for (const child of newborns) {
           if (!this.knownSpeciesIds.has(child.species.id)) {
             this.registerSpecies(child.species);
@@ -142,11 +153,21 @@ export class Simulation {
       const cubs = [];
       for (const hunter of this.hunters) {
         const cub = hunter.step(this.env, this.organisms, this.hunters);
-        if (cub) cubs.push(cub);
+        if (cub) {
+          cub.spawnTicks = SPAWN_ANIMATION_TICKS;
+          cubs.push(cub);
+        }
       }
+      const deadHunters = this.hunters.filter((hunter) => !hunter.alive);
       this.hunters = this.hunters.filter((hunter) => hunter.alive);
-      if (cubs.length) this.hunters.push(...cubs);
+      if (cubs.length) {
+        this.hunters.push(...cubs);
+        this.addSpawnEffects(cubs, true);
+      }
+      if (deadOrganisms.length) this.addDeathEffects(deadOrganisms, false);
+      if (deadHunters.length) this.addDeathEffects(deadHunters, true);
       totalBirths += newborns.length + cubs.length;
+      this.updateVisualEffects();
 
       if (this.organisms.length > config.MAX_ORGANISMS) {
         this.organisms.sort((a, b) => b.energy - a.energy);
@@ -168,6 +189,44 @@ export class Simulation {
       this.sampleTraitHistory();
     }
     this.lastBirths = totalBirths;
+  }
+
+  addSpawnEffects(entities, isHunter) {
+    for (const entity of entities) {
+      this.visualEffects.push({
+        type: 'spawn',
+        x: entity.x,
+        y: entity.y,
+        radius: Math.max(5, entity.size * SPAWN_EFFECT_RADIUS_MULTIPLIER),
+        age: 0,
+        duration: SPAWN_EFFECT_TICKS,
+        isHunter
+      });
+    }
+  }
+
+  addDeathEffects(entities, isHunter) {
+    for (const entity of entities) {
+      this.visualEffects.push({
+        type: 'death',
+        x: entity.x,
+        y: entity.y,
+        radius: Math.max(6, entity.size * DEATH_EFFECT_RADIUS_MULTIPLIER),
+        age: 0,
+        duration: DEATH_EFFECT_TICKS,
+        color: isHunter
+          ? { r: 230, g: 68, b: 68 }
+          : { r: entity.species.r, g: entity.species.g, b: entity.species.b },
+        isHunter
+      });
+    }
+  }
+
+  updateVisualEffects() {
+    for (const effect of this.visualEffects) {
+      effect.age += 1;
+    }
+    this.visualEffects = this.visualEffects.filter((effect) => effect.age < effect.duration);
   }
 
   detectExtinctions() {
@@ -340,9 +399,14 @@ export class Simulation {
     };
     for (let i = 0; i < 9; i++) {
       this.organisms.push(
-        new Organism(random(0, WORLD_WIDTH), random(0, WORLD_HEIGHT), traits, fallback)
+        (() => {
+          const organism = new Organism(random(0, WORLD_WIDTH), random(0, WORLD_HEIGHT), traits, fallback);
+          organism.spawnTicks = SPAWN_ANIMATION_TICKS;
+          return organism;
+        })()
       );
     }
+    this.addSpawnEffects(this.organisms.slice(-9), false);
   }
 
   spawnHunters(count, reason = 'manual') {
@@ -351,10 +415,13 @@ export class Simulation {
       const edge = Math.floor(random(0, 4));
       const x = edge % 2 === 0 ? (edge === 0 ? 18 : WORLD_WIDTH - 18) : random(24, WORLD_WIDTH - 24);
       const y = edge % 2 === 1 ? (edge === 1 ? 18 : WORLD_HEIGHT - 18) : random(24, WORLD_HEIGHT - 24);
-      this.hunters.push(new Hunter(x, y));
+      const hunter = new Hunter(x, y);
+      hunter.spawnTicks = SPAWN_ANIMATION_TICKS;
+      this.hunters.push(hunter);
       spawned += 1;
     }
     if (spawned > 0) {
+      this.addSpawnEffects(this.hunters.slice(-spawned), true);
       this.captureReplayMoment('apex-spawn', `Apex predators spawned: +${spawned} (${reason})`);
     }
     return spawned;
@@ -407,7 +474,9 @@ export class Simulation {
         vx: organism.vx,
         vy: organism.vy,
         state: organism.state,
-        breedCooldown: organism.breedCooldown
+        breedCooldown: organism.breedCooldown,
+        fedTicks: organism.fedTicks,
+        spawnTicks: organism.spawnTicks
       })),
       hunters: this.hunters.map((hunter) => ({
         x: hunter.x,
@@ -419,7 +488,10 @@ export class Simulation {
         size: hunter.size,
         vision: hunter.vision,
         vx: hunter.vx,
-        vy: hunter.vy
+        vy: hunter.vy,
+        lockedOnPrey: hunter.lockedOnPrey,
+        fedTicks: hunter.fedTicks,
+        spawnTicks: hunter.spawnTicks
       })),
       // Keep recent windows only in replay snapshots to limit per-moment payload size.
       traitHistory: snapshotMode ? this.traitHistory.slice(-SNAPSHOT_TRAIT_LIMIT) : this.traitHistory,
@@ -487,6 +559,8 @@ export class Simulation {
       organism.vy = entry.vy;
       organism.state = entry.state;
       organism.breedCooldown = entry.breedCooldown ?? 0;
+      organism.fedTicks = entry.fedTicks ?? 0;
+      organism.spawnTicks = entry.spawnTicks ?? 0;
       return organism;
     }) : [];
 
@@ -499,11 +573,15 @@ export class Simulation {
       hunter.vision = entry.vision;
       hunter.vx = entry.vx;
       hunter.vy = entry.vy;
+      hunter.lockedOnPrey = entry.lockedOnPrey ?? false;
+      hunter.fedTicks = entry.fedTicks ?? 0;
+      hunter.spawnTicks = entry.spawnTicks ?? 0;
       return hunter;
     }) : [];
 
     this.time = state.time ?? 0;
     this.running = Boolean(state.running);
+    this.visualEffects = [];
     this.nextApocalypse = state.nextApocalypse ?? this.time + 1000;
     this.lastBirths = state.lastBirths ?? 0;
     this.lastApocalypseKills = state.lastApocalypseKills ?? 0;
@@ -553,6 +631,39 @@ export class Simulation {
     this.env.draw(ctx);
     for (const organism of this.organisms) organism.draw(ctx);
     for (const hunter of this.hunters) hunter.draw(ctx);
+    this.drawVisualEffects(ctx);
+  }
+
+  drawVisualEffects(ctx) {
+    for (const effect of this.visualEffects) {
+      const progress = effect.age / effect.duration;
+      if (effect.type === 'spawn') {
+        ctx.save();
+        ctx.globalAlpha = (1 - progress) * 0.2;
+        ctx.strokeStyle = effect.isHunter ? 'rgba(255, 112, 112, 0.8)' : 'rgba(220, 245, 255, 0.9)';
+        ctx.lineWidth = 1 + (1 - progress) * 1.4;
+        ctx.beginPath();
+        ctx.arc(effect.x, effect.y, effect.radius * (0.4 + progress), 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+        continue;
+      }
+
+      const dotCount = 8;
+      for (let i = 0; i < dotCount; i++) {
+        const angle = (Math.PI * 2 * i) / dotCount;
+        const distance = effect.radius * (0.28 + progress * 1.05);
+        const dotX = effect.x + Math.cos(angle) * distance;
+        const dotY = effect.y + Math.sin(angle) * distance;
+        ctx.save();
+        ctx.globalAlpha = (1 - progress) * 0.35;
+        ctx.fillStyle = `rgb(${effect.color.r}, ${effect.color.g}, ${effect.color.b})`;
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, Math.max(0.6, 2 - progress * 1.2), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
   }
 
   getOrganismAt(canvasX, canvasY, radius = 18) {

@@ -15,6 +15,9 @@ export class Hunter {
     this.vision = random(HUNTER_MIN_VISION, HUNTER_MAX_VISION);
     this.vx = random(-1, 1);
     this.vy = random(-1, 1);
+    this.lockedOnPrey = false;
+    this.fedTicks = 0;
+    this.spawnTicks = 0;
   }
 
   get alive() {
@@ -23,7 +26,10 @@ export class Hunter {
 
   step(env, organisms, hunters) {
     this.age += 1;
+    if (this.fedTicks > 0) this.fedTicks -= 1;
+    if (this.spawnTicks > 0) this.spawnTicks -= 1;
     const hunt = this.findPrey(organisms);
+    this.lockedOnPrey = Boolean(hunt);
     if (hunt) {
       this.steer(hunt.prey, env.event.instability * 0.7);
     } else {
@@ -44,6 +50,7 @@ export class Hunter {
       const drain = Math.min(hunt.prey.energy, config.HUNTER_BASE_DRAIN + this.size * HUNTER_SIZE_DRAIN_FACTOR);
       hunt.prey.energy -= drain;
       this.energy += drain * 0.92;
+      if (drain > 0.1) this.fedTicks = 16;
     }
 
     this.energy -= 0.42 + this.speed * 0.18 + env.getTravelPenalty(this.x, this.y) * 0.4;

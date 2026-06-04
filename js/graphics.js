@@ -1,7 +1,5 @@
 // Enhanced graphics rendering with SVG-like styling and visual distinction
 
-import { speciesColor } from './species.js';
-
 // Constants for visual rendering
 const SPOT_X_FREQUENCY = 7.13;  // Frequency multiplier for deterministic X spot positioning
 const SPOT_Y_FREQUENCY = 5.27;  // Frequency multiplier for deterministic Y spot positioning
@@ -17,6 +15,79 @@ const ROUGH_TEXTURE_BASE_SIZE = 0.8;  // Base size for rough texture
 const ROUGH_TEXTURE_SIZE_VARIATION = 0.4;  // Size variation factor for rough texture
 const FUR_LIKE_POSITION_X_FREQ = 0.4;  // Fur-like texture X positioning frequency
 const FUR_LIKE_POSITION_Y_FREQ = 0.35; // Fur-like texture Y positioning frequency
+const TRAIT_MIN_SPEED = 0.25;
+const TRAIT_MAX_SPEED = 2.4;
+const TRAIT_MIN_SIZE = 2.4;
+const TRAIT_MAX_SIZE = 8.8;
+const TRAIT_MIN_VISION = 16;
+const TRAIT_MAX_VISION = 140;
+const HIGH_ENERGY_LEVEL = 125;
+const LOW_ENERGY_LEVEL = 24;
+const ORGANISM_TRAIL_THRESHOLD = 0.45;
+const HUNTER_TRAIL_THRESHOLD = 0.5;
+const HUNTER_MIN_SPEED = 1.05;
+const HUNTER_MAX_SPEED = 1.75;
+const HUNTER_LOW_ENERGY_LEVEL = 28;
+const TRAIL_STRENGTH_OFFSET = 0.3;
+const ORGANISM_TRAIL_MIN_ALPHA = 0.04;
+const ORGANISM_TRAIL_BASE_ALPHA = 0.2;
+const ORGANISM_TRAIL_FADE_STEP = 0.05;
+const HUNTER_TRAIL_ALPHA = 0.13;
+const HUNTER_TRAIL_OFFSET = 7;
+const VISION_ARC_BASE = 0.54;
+const VISION_ARC_VARIATION = 0.12;
+
+const clamp01 = (value) => Math.max(0, Math.min(1, value));
+const clamp255 = (value) => Math.max(0, Math.min(255, Math.round(value)));
+
+const mixColor = (base, target, amount) => {
+  const blend = clamp01(amount);
+  return {
+    r: clamp255(base.r + (target.r - base.r) * blend),
+    g: clamp255(base.g + (target.g - base.g) * blend),
+    b: clamp255(base.b + (target.b - base.b) * blend)
+  };
+};
+
+const shiftSaturation = (rgb, saturation) => {
+  const value = clamp01(saturation);
+  const gray = (rgb.r + rgb.g + rgb.b) / 3;
+  return {
+    r: clamp255(gray + (rgb.r - gray) * (1 + value)),
+    g: clamp255(gray + (rgb.g - gray) * (1 + value)),
+    b: clamp255(gray + (rgb.b - gray) * (1 + value))
+  };
+};
+
+const traitFactor = (value, min, max) => clamp01((value - min) / (max - min));
+
+const getOrganismPalette = (organism) => {
+  const base = { r: organism.species.r, g: organism.species.g, b: organism.species.b };
+  let color = { ...base };
+
+  // Visual precedence: behavior cue (fleeing), vitality cue (fed/high), then danger cue (low energy).
+  if (organism.state === 'fleeing') {
+    color = shiftSaturation(color, -0.55);
+    color = mixColor(color, { r: 112, g: 158, b: 224 }, 0.24);
+  }
+
+  if (organism.fedTicks > 0 || organism.energy > HIGH_ENERGY_LEVEL) {
+    color = shiftSaturation(color, 0.35);
+    color = mixColor(color, { r: 255, g: 174, b: 92 }, 0.16);
+  }
+
+  if (organism.energy < LOW_ENERGY_LEVEL) {
+    const fade = clamp01((LOW_ENERGY_LEVEL - organism.energy) / LOW_ENERGY_LEVEL);
+    color = mixColor(color, { r: 130, g: 130, b: 130 }, 0.35 + fade * 0.45);
+  }
+
+  const headTint = mixColor(color, { r: 236, g: 245, b: 255 }, 0.08 + traitFactor(organism.vision, TRAIT_MIN_VISION, TRAIT_MAX_VISION) * 0.22);
+  return {
+    body: `rgb(${color.r}, ${color.g}, ${color.b})`,
+    head: `rgb(${headTint.r}, ${headTint.g}, ${headTint.b})`,
+    rgb: color
+  };
+};
 
 /**
  * Get complementary/accent color based on primary color for visual contrast
@@ -159,17 +230,56 @@ const drawFormPattern = (ctx, pattern, bodyLength, bodyHeight, color, isDark, ac
  * Enhanced organism drawing with form-specific visuals and improved contrast
  */
 export const drawEnhancedOrganism = (ctx, organism, profile, bodyLength, bodyHeight, headX, headRadius, angle) => {
-  const color = speciesColor(organism.species);
-  const rgb = organism.species;
+  const palette = getOrganismPalette(organism);
+  const color = palette.body;
+  const rgb = palette.rgb;
   const isDark = rgb.r + rgb.g + rgb.b < 384;
   const formName = organism.getFormName();
   const visualStyle = getFormVisualStyle(formName);
   const accentRgb = getAccentColor(rgb);
   const accentColor = `rgb(${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b})`;
+  const speedFactor = traitFactor(organism.speed, TRAIT_MIN_SPEED, TRAIT_MAX_SPEED);
+  const sizeFactor = traitFactor(organism.size, TRAIT_MIN_SIZE, TRAIT_MAX_SIZE);
+  const visionFactor = traitFactor(organism.vision, TRAIT_MIN_VISION, TRAIT_MAX_VISION);
+  const stretchX = 1 + speedFactor * 0.34;
+  const bulkY = 1 + sizeFactor * 0.22;
+  const eyeScale = 1 + visionFactor * 0.35;
+  const spawnScale = organism.spawnTicks > 0 ? 0.55 + (1 - clamp01(organism.spawnTicks / 16)) * 0.45 : 1;
   
+  if (speedFactor > ORGANISM_TRAIL_THRESHOLD) {
+    for (let i = 1; i <= 2; i++) {
+      const trailStrength = (speedFactor - TRAIL_STRENGTH_OFFSET) * i;
+      const ghostX = organism.x - organism.vx * (3 + trailStrength * 4) * i;
+      const ghostY = organism.y - organism.vy * (3 + trailStrength * 4) * i;
+      ctx.save();
+      ctx.globalAlpha = Math.max(ORGANISM_TRAIL_MIN_ALPHA, ORGANISM_TRAIL_BASE_ALPHA - i * ORGANISM_TRAIL_FADE_STEP);
+      ctx.translate(ghostX, ghostY);
+      ctx.rotate(angle);
+      ctx.scale(stretchX * 0.95, bulkY * 0.95);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, bodyLength * 0.45, bodyHeight * 0.45, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
   ctx.save();
   ctx.translate(organism.x, organism.y);
   ctx.rotate(angle);
+  const visionArc = Math.PI * (VISION_ARC_BASE - visionFactor * VISION_ARC_VARIATION);
+  ctx.fillStyle = isDark ? 'rgba(170, 206, 255, 0.06)' : 'rgba(60, 115, 178, 0.08)';
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.arc(0, 0, organism.vision, -visionArc, visionArc);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(organism.x, organism.y);
+  ctx.rotate(angle);
+  ctx.scale(stretchX * spawnScale, bulkY * spawnScale);
 
   // Draw enhanced shadow with color for depth
   ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.15)';
@@ -314,7 +424,7 @@ export const drawEnhancedOrganism = (ctx, organism, profile, bodyLength, bodyHei
   drawFormPattern(ctx, visualStyle.pattern, bodyLength, bodyHeight, color, isDark, accentColor);
 
   // Head
-  ctx.fillStyle = color;
+  ctx.fillStyle = palette.head;
   ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
@@ -323,8 +433,8 @@ export const drawEnhancedOrganism = (ctx, organism, profile, bodyLength, bodyHei
   ctx.stroke();
 
   // Eyes with enhanced detail
-  const eyeOuterRadius = Math.max(1, headRadius * 0.22);
-  const eyeInnerRadius = Math.max(0.5, headRadius * 0.09);
+  const eyeOuterRadius = Math.max(1, headRadius * 0.22 * eyeScale);
+  const eyeInnerRadius = Math.max(0.5, headRadius * 0.09 * eyeScale);
   
   // Eye white
   ctx.fillStyle = '#f4fbff';
@@ -368,10 +478,38 @@ export const drawEnhancedOrganism = (ctx, organism, profile, bodyLength, bodyHei
  * Enhanced hunter drawing with more distinctive predatory appearance
  */
 export const drawEnhancedHunter = (ctx, hunter) => {
+  const speedFactor = traitFactor(hunter.speed, HUNTER_MIN_SPEED, HUNTER_MAX_SPEED);
+  const warmFactor = clamp01(hunter.fedTicks / 16);
+  const lowEnergyFade = clamp01((HUNTER_LOW_ENERGY_LEVEL - hunter.energy) / HUNTER_LOW_ENERGY_LEVEL);
+  const bodyColor = mixColor(
+    mixColor({ r: 230, g: 57, b: 70 }, { r: 255, g: 190, b: 100 }, warmFactor * 0.5),
+    { r: 135, g: 135, b: 135 },
+    lowEnergyFade * 0.55
+  );
+  const bodyFill = `rgb(${bodyColor.r}, ${bodyColor.g}, ${bodyColor.b})`;
+  const spawnScale = hunter.spawnTicks > 0 ? 0.6 + (1 - clamp01(hunter.spawnTicks / 14)) * 0.4 : 1;
+
+  if (speedFactor > HUNTER_TRAIL_THRESHOLD) {
+    ctx.save();
+    ctx.globalAlpha = HUNTER_TRAIL_ALPHA;
+    ctx.translate(hunter.x - hunter.vx * HUNTER_TRAIL_OFFSET, hunter.y - hunter.vy * HUNTER_TRAIL_OFFSET);
+    const ghostAngle = Math.atan2(hunter.vy, hunter.vx) + Math.PI / 2;
+    ctx.rotate(ghostAngle);
+    ctx.fillStyle = bodyFill;
+    ctx.beginPath();
+    ctx.moveTo(0, -hunter.size - 2);
+    ctx.lineTo(hunter.size * 0.75, hunter.size * 0.95);
+    ctx.lineTo(-hunter.size * 0.75, hunter.size * 0.95);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
   ctx.save();
   ctx.translate(hunter.x, hunter.y);
   const angle = Math.atan2(hunter.vy, hunter.vx) + Math.PI / 2;
   ctx.rotate(angle);
+  ctx.scale(spawnScale, spawnScale);
 
   const size = hunter.size;
   
@@ -382,7 +520,7 @@ export const drawEnhancedHunter = (ctx, hunter) => {
   ctx.fill();
 
   // Main body - predatory shape
-  ctx.fillStyle = '#e63946';
+  ctx.fillStyle = bodyFill;
   ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
   ctx.lineWidth = 1;
 
@@ -453,6 +591,14 @@ export const drawEnhancedHunter = (ctx, hunter) => {
     ctx.beginPath();
     ctx.moveTo(-size * 0.2 + i * size * 0.2, -size * 0.3);
     ctx.lineTo(-size * 0.15 + i * size * 0.2, -size * 0.1);
+    ctx.stroke();
+  }
+
+  if (hunter.lockedOnPrey) {
+    ctx.strokeStyle = 'rgba(255, 72, 72, 0.7)';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, size * 1.15, size * 1.25, 0, 0, Math.PI * 2);
     ctx.stroke();
   }
 
