@@ -12,7 +12,33 @@ const TRAIT_HISTORY_LIMIT = 260;
 const TRAIT_SAMPLE_INTERVAL = 30;
 const MUTATION_STICK_WINDOW = 4;
 const MUTATION_MIN_INTERVAL = 180;
-const deepClone = (value) => JSON.parse(JSON.stringify(value));
+const MUTATION_MILESTONE_LIMIT = 80;
+const SNAPSHOT_TRAIT_LIMIT = 120;
+const SNAPSHOT_MILESTONE_LIMIT = 40;
+const deepClone = (value) => {
+  if (typeof structuredClone === 'function') {
+    try {
+      return structuredClone(value);
+    } catch (error) {
+      // Fallback below keeps compatibility with unsupported value types.
+    }
+  }
+  return JSON.parse(JSON.stringify(value));
+};
+const createFallbackSpeciesCatalog = (state) => {
+  if (!Array.isArray(state.organisms)) return [];
+  return [...new Map(state.organisms.map((organism) => [
+    organism.speciesId,
+    {
+      id: organism.speciesId,
+      parentId: null,
+      r: organism.traits?.r ?? 112,
+      g: organism.traits?.g ?? 181,
+      b: organism.traits?.b ?? 235,
+      complexity: organism.traits?.complexity ?? 0.18
+    }
+  ])).values()];
+};
 
 const cloneSpecies = (species) => ({
   id: species.id,
@@ -173,7 +199,12 @@ export class Simulation {
       return;
     }
 
-    if (this.traitHistory.length < MUTATION_STICK_WINDOW || this.time - this.lastMutationStickTime < MUTATION_MIN_INTERVAL) {
+    // Wait until we have enough points for a stability window before detecting sticky mutations.
+    if (this.traitHistory.length < MUTATION_STICK_WINDOW) {
+      return;
+    }
+    // Avoid flooding the timeline with repeated stick events in short bursts.
+    if (this.time - this.lastMutationStickTime < MUTATION_MIN_INTERVAL) {
       return;
     }
 
@@ -197,7 +228,7 @@ export class Simulation {
       traits: changes
     };
     this.mutationMilestones.push(milestone);
-    if (this.mutationMilestones.length > REPLAY_LIMIT) {
+    if (this.mutationMilestones.length > MUTATION_MILESTONE_LIMIT) {
       this.mutationMilestones.shift();
     }
 
@@ -235,12 +266,16 @@ export class Simulation {
   }
 
   captureReplayMoment(type, label) {
+    const lastMoment = this.replayMoments[this.replayMoments.length - 1];
+    if (lastMoment && lastMoment.type === type && lastMoment.time === this.time) {
+      return;
+    }
     const moment = {
       id: `m${this.replayCounter++}`,
       type,
       label,
       time: this.time,
-      state: deepClone(this.buildStatePayload({ includeReplaySnapshots: false }))
+      state: deepClone(this.buildStatePayload({ includeReplaySnapshots: false, snapshotMode: true }))
     };
     this.replayMoments.push(moment);
     if (this.replayMoments.length > REPLAY_LIMIT) {
@@ -325,7 +360,7 @@ export class Simulation {
     return spawned;
   }
 
-  buildStatePayload({ includeReplaySnapshots }) {
+  buildStatePayload({ includeReplaySnapshots, snapshotMode = false }) {
     return {
       version: 1,
       time: this.time,
@@ -386,9 +421,10 @@ export class Simulation {
         vx: hunter.vx,
         vy: hunter.vy
       })),
-      traitHistory: this.traitHistory,
-      mutationMilestones: this.mutationMilestones,
-      replayMoments: this.replayMoments.map((moment) => ({
+      // Keep recent windows only in replay snapshots to limit per-moment payload size.
+      traitHistory: snapshotMode ? this.traitHistory.slice(-SNAPSHOT_TRAIT_LIMIT) : this.traitHistory,
+      mutationMilestones: snapshotMode ? this.mutationMilestones.slice(-SNAPSHOT_MILESTONE_LIMIT) : this.mutationMilestones,
+      replayMoments: snapshotMode ? [] : this.replayMoments.map((moment) => ({
         id: moment.id,
         type: moment.type,
         label: moment.label,
@@ -417,21 +453,7 @@ export class Simulation {
     }
 
     const speciesMap = new Map();
-    const sourceSpecies = Array.isArray(state.speciesCatalog)
-      ? state.speciesCatalog
-      : (Array.isArray(state.organisms)
-          ? [...new Map(state.organisms.map((organism) => [
-              organism.speciesId,
-              {
-                id: organism.speciesId,
-                parentId: null,
-                r: organism.traits?.r ?? 112,
-                g: organism.traits?.g ?? 181,
-                b: organism.traits?.b ?? 235,
-                complexity: organism.traits?.complexity ?? 0.18
-              }
-            ])).values()]
-          : []);
+    const sourceSpecies = Array.isArray(state.speciesCatalog) ? state.speciesCatalog : createFallbackSpeciesCatalog(state);
 
     for (const entry of sourceSpecies) {
       if (typeof entry?.id !== 'number') continue;
@@ -514,7 +536,13 @@ export class Simulation {
           }))
       : [];
 
-    setSpeciesCounter(state.speciesCounter ?? (Math.max(0, ...speciesMap.keys()) + 1));
+    let maxSpeciesId = 0;
+    for (const speciesId of speciesMap.keys()) {
+      if (speciesId > maxSpeciesId) maxSpeciesId = speciesId;
+    }
+    // Species IDs are 1-based, so 1 remains the safe minimum when catalog is empty.
+    const fallbackSpeciesCounter = maxSpeciesId + 1;
+    setSpeciesCounter(state.speciesCounter ?? fallbackSpeciesCounter);
 
     if (addResumeMoment) {
       this.captureReplayMoment('resume', 'Run resumed from saved state');

@@ -28,7 +28,7 @@ export const setupUI = (simulation, speedSelect, pauseBtn, resetBtn, apocalypseB
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `living-sim-state-t${simulation.time}.json`;
+    link.download = `living-sim-state-tick-${simulation.time}-${Date.now()}.json`;
     document.body.appendChild(link);
     link.click();
     link.remove();
