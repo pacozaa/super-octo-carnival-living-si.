@@ -17,7 +17,7 @@ export const ORGANISM_MIN_SAFETY_RADIUS = 52;
 export const SAFETY_RADIUS_VISION_FACTOR = 0.95;
 
 // Hunter population
-export const MAX_HUNTERS = 10;
+export const MAX_HUNTERS = 25;
 export const HUNTER_REPRODUCTION_ENERGY = 140;
 export const HUNTER_REPRODUCTION_COST = 60;
 export const HUNTER_SPAWN_INTERVAL = 720;
@@ -40,3 +40,10 @@ export const MIN_PREY_DISTANCE = 10;
 // Climate events
 export const MIN_EVENT_INTERVAL = 800;
 export const EVENT_INTERVAL_VARIANCE = 540;
+
+// Apocalypse settings
+export const APOCALYPSE_MIN_INTERVAL = 1800;
+export const APOCALYPSE_MAX_INTERVAL = 3500;
+export const APOCALYPSE_MIN_KILL_PERCENT = 0.3;
+export const APOCALYPSE_MAX_KILL_PERCENT = 0.6;
+export const APOCALYPSE_MIN_POPULATION = 50;

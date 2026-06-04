@@ -1,5 +1,5 @@
 import { random } from './utils.js';
-import { BASE_ORGANISMS, MAX_ORGANISMS, MAX_HUNTERS, HUNTER_SPAWN_INTERVAL, MIN_POPULATION_FOR_HUNTER_SPAWN, WORLD_WIDTH, WORLD_HEIGHT } from './constants.js';
+import { BASE_ORGANISMS, MAX_ORGANISMS, MAX_HUNTERS, HUNTER_SPAWN_INTERVAL, MIN_POPULATION_FOR_HUNTER_SPAWN, WORLD_WIDTH, WORLD_HEIGHT, APOCALYPSE_MIN_INTERVAL, APOCALYPSE_MAX_INTERVAL, APOCALYPSE_MIN_KILL_PERCENT, APOCALYPSE_MAX_KILL_PERCENT, APOCALYPSE_MIN_POPULATION } from './constants.js';
 import { Environment } from './environment.js';
 import { Organism } from './organism.js';
 import { Hunter } from './hunter.js';
@@ -37,6 +37,8 @@ export class Simulation {
     this.hunters = [];
     this.lastBirths = 0;
     this.spawnHunters(2);
+    this.scheduleNextApocalypse();
+    this.lastApocalypseKills = 0;
   }
 
   update(stepCount) {
@@ -74,8 +76,41 @@ export class Simulation {
       if (this.time % HUNTER_SPAWN_INTERVAL === 0 && this.organisms.length > MIN_POPULATION_FOR_HUNTER_SPAWN && this.hunters.length < MAX_HUNTERS) {
         this.spawnHunters(1);
       }
+      if (this.time >= this.nextApocalypse && this.organisms.length > APOCALYPSE_MIN_POPULATION) {
+        this.triggerApocalypse(true);
+      }
     }
     this.lastBirths = totalBirths;
+  }
+
+  triggerApocalypse(automatic = false) {
+    const killPercent = random(APOCALYPSE_MIN_KILL_PERCENT, APOCALYPSE_MAX_KILL_PERCENT);
+    const toKill = Math.floor(this.organisms.length * killPercent);
+    
+    // Randomly select organisms to kill (Fisher-Yates shuffle)
+    const shuffled = [...this.organisms];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      // random(0, i + 1) gives [0, i+1), which includes 0 to i inclusive
+      const j = Math.floor(random(0, i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    
+    // Kill the selected organisms
+    for (let i = 0; i < toKill; i++) {
+      shuffled[i].energy = 0;
+    }
+    
+    this.organisms = this.organisms.filter((o) => o.alive);
+    this.lastApocalypseKills = toKill;
+    
+    // Schedule next apocalypse only if this was automatic
+    if (automatic) {
+      this.scheduleNextApocalypse();
+    }
+  }
+
+  scheduleNextApocalypse() {
+    this.nextApocalypse = this.time + Math.floor(random(APOCALYPSE_MIN_INTERVAL, APOCALYPSE_MAX_INTERVAL));
   }
 
   seedRescuePopulation() {
@@ -193,6 +228,7 @@ export class Simulation {
       .map(([form, count]) => `${form}:${count}`)
       .join(" ");
     const apexGeneration = this.hunters.reduce((best, hunter) => Math.max(best, hunter.generation), 0);
+    const timeToApocalypse = Math.max(0, this.nextApocalypse - this.time);
     const details = [
       `Season pulse ${this.env.season.toFixed(2)}`,
       `Climate event: ${this.env.event.name}`,
@@ -200,8 +236,12 @@ export class Simulation {
       `Average energy ${averageEnergy}`,
       `Births this frame ${this.lastBirths}`,
       `Apex generation ${apexGeneration}`,
-      `Forms ${dominantForms || `${DEFAULT_VERTEBRATE_FORM}:0`}`
+      `Forms ${dominantForms || `${DEFAULT_VERTEBRATE_FORM}:0`}`,
+      `Next apocalypse in ${timeToApocalypse} ticks`
     ];
+    if (this.lastApocalypseKills > 0) {
+      details.push(`Last apocalypse killed ${this.lastApocalypseKills}`);
+    }
     return details.join("  |  ");
   }
 }

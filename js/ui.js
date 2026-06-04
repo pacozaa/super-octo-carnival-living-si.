@@ -1,6 +1,6 @@
 // UI setup and event handling
 
-export const setupUI = (simulation, speedSelect, pauseBtn, resetBtn) => {
+export const setupUI = (simulation, speedSelect, pauseBtn, resetBtn, apocalypseBtn) => {
   pauseBtn.addEventListener("click", () => {
     simulation.running = !simulation.running;
     pauseBtn.textContent = simulation.running ? "Pause" : "Resume";
@@ -9,6 +9,10 @@ export const setupUI = (simulation, speedSelect, pauseBtn, resetBtn) => {
   resetBtn.addEventListener("click", () => {
     simulation.reset();
     pauseBtn.textContent = "Pause";
+  });
+
+  apocalypseBtn.addEventListener("click", () => {
+    simulation.triggerApocalypse();
   });
 };
 
