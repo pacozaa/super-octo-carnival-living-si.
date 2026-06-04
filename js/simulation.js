@@ -110,7 +110,7 @@ export class Simulation {
   }
 
   scheduleNextApocalypse() {
-    this.nextApocalypse = this.time + random(APOCALYPSE_MIN_INTERVAL, APOCALYPSE_MAX_INTERVAL);
+    this.nextApocalypse = this.time + Math.floor(random(APOCALYPSE_MIN_INTERVAL, APOCALYPSE_MAX_INTERVAL));
   }
 
   seedRescuePopulation() {
