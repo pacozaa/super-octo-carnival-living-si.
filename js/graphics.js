@@ -3,6 +3,22 @@
 import { speciesColor } from './species.js';
 
 /**
+ * Get complementary/accent color based on primary color for visual contrast
+ */
+const getAccentColor = (rgb) => {
+  // Create a complementary color for better contrast
+  const r = Math.max(0, Math.min(255, 255 - rgb.r));
+  const g = Math.max(0, Math.min(255, 255 - rgb.g));
+  const b = Math.max(0, Math.min(255, 255 - rgb.b));
+  // Return darker version of complement for better visual contrast
+  return {
+    r: Math.floor(r * 0.6),
+    g: Math.floor(g * 0.6),
+    b: Math.floor(b * 0.6)
+  };
+};
+
+/**
  * Get visual style based on form type for more distinctive appearance
  */
 const getFormVisualStyle = (formName) => {
@@ -23,7 +39,7 @@ const getFormVisualStyle = (formName) => {
 /**
  * Draw pattern/texture on organism body based on form type
  */
-const drawFormPattern = (ctx, pattern, bodyLength, bodyHeight, color, isDark) => {
+const drawFormPattern = (ctx, pattern, bodyLength, bodyHeight, color, isDark, accentColor) => {
   const patternColor = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)';
   ctx.fillStyle = patternColor;
   ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
@@ -123,6 +139,22 @@ const drawFormPattern = (ctx, pattern, bodyLength, bodyHeight, color, isDark) =>
 };
 
 /**
+ * Get complementary/accent color based on primary color for visual contrast
+ */
+const getAccentColor = (rgb) => {
+  // Create a complementary color for better contrast
+  const r = Math.max(0, Math.min(255, 255 - rgb.r));
+  const g = Math.max(0, Math.min(255, 255 - rgb.g));
+  const b = Math.max(0, Math.min(255, 255 - rgb.b));
+  // Return darker version of complement for better visual contrast
+  return {
+    r: Math.floor(r * 0.6),
+    g: Math.floor(g * 0.6),
+    b: Math.floor(b * 0.6)
+  };
+};
+
+/**
  * Enhanced organism drawing with form-specific visuals and improved contrast
  */
 export const drawEnhancedOrganism = (ctx, organism, profile, bodyLength, bodyHeight, headX, headRadius, angle) => {
@@ -131,13 +163,15 @@ export const drawEnhancedOrganism = (ctx, organism, profile, bodyLength, bodyHei
   const isDark = rgb.r + rgb.g + rgb.b < 384;
   const formName = organism.getFormName();
   const visualStyle = getFormVisualStyle(formName);
+  const accentRgb = getAccentColor(rgb);
+  const accentColor = `rgb(${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b})`;
   
   ctx.save();
   ctx.translate(organism.x, organism.y);
   ctx.rotate(angle);
 
-  // Draw shadow/outline for depth
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+  // Draw enhanced shadow with color for depth
+  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.15)';
   ctx.beginPath();
   ctx.ellipse(0, 1, bodyLength * 0.5 + 1, bodyHeight * 0.5 + 1, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -276,7 +310,7 @@ export const drawEnhancedOrganism = (ctx, organism, profile, bodyLength, bodyHei
   ctx.stroke();
 
   // Draw pattern/texture based on form type
-  drawFormPattern(ctx, visualStyle.pattern, bodyLength, bodyHeight, color, isDark);
+  drawFormPattern(ctx, visualStyle.pattern, bodyLength, bodyHeight, color, isDark, accentColor);
 
   // Head
   ctx.fillStyle = color;
