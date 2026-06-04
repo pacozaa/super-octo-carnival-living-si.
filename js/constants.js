@@ -10,16 +10,16 @@ export const BASE_ORGANISMS = 48;
 export const MAX_ORGANISMS = 450;
 
 // Organism traits and behavior
-export const REPRODUCTION_ENERGY = 170;
-export const REPRODUCTION_COST = 75;
+export const REPRODUCTION_ENERGY = 120;
+export const REPRODUCTION_COST = 50;
 export const TICK_DAMAGE = 0.22;
 export const ORGANISM_MIN_SAFETY_RADIUS = 52;
 export const SAFETY_RADIUS_VISION_FACTOR = 0.95;
 
 // Hunter population
 export const MAX_HUNTERS = 10;
-export const HUNTER_REPRODUCTION_ENERGY = 185;
-export const HUNTER_REPRODUCTION_COST = 82;
+export const HUNTER_REPRODUCTION_ENERGY = 140;
+export const HUNTER_REPRODUCTION_COST = 60;
 export const HUNTER_SPAWN_INTERVAL = 720;
 export const MIN_POPULATION_FOR_HUNTER_SPAWN = 85;
 
