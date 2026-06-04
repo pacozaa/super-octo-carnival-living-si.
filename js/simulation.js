@@ -77,20 +77,20 @@ export class Simulation {
         this.spawnHunters(1);
       }
       if (this.time >= this.nextApocalypse && this.organisms.length > APOCALYPSE_MIN_POPULATION) {
-        this.triggerApocalypse();
+        this.triggerApocalypse(true);
       }
     }
     this.lastBirths = totalBirths;
   }
 
-  triggerApocalypse() {
+  triggerApocalypse(automatic = false) {
     const killPercent = random(APOCALYPSE_MIN_KILL_PERCENT, APOCALYPSE_MAX_KILL_PERCENT);
     const toKill = Math.floor(this.organisms.length * killPercent);
     
-    // Randomly select organisms to kill
+    // Randomly select organisms to kill (Fisher-Yates shuffle)
     const shuffled = [...this.organisms];
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(random(0, i + 1));
+      const j = Math.floor(random(0, i));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     
@@ -102,8 +102,10 @@ export class Simulation {
     this.organisms = this.organisms.filter((o) => o.alive);
     this.lastApocalypseKills = toKill;
     
-    // Schedule next apocalypse
-    this.nextApocalypse = this.time + random(APOCALYPSE_MIN_INTERVAL, APOCALYPSE_MAX_INTERVAL);
+    // Schedule next apocalypse only if this was automatic
+    if (automatic) {
+      this.nextApocalypse = this.time + random(APOCALYPSE_MIN_INTERVAL, APOCALYPSE_MAX_INTERVAL);
+    }
   }
 
   seedRescuePopulation() {
