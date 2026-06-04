@@ -3,6 +3,7 @@ import { WORLD_WIDTH, WORLD_HEIGHT, CELL, GRID_W, GRID_H, ORGANISM_MIN_SAFETY_RA
 import { speciesColor, colorDistance, createSpecies, describeVertebrateForm, morphologyDistance } from './species.js';
 import { mutateTraits } from './traits.js';
 import { config } from './config.js';
+import { drawEnhancedOrganism } from './graphics.js';
 
 const BASE_MATURITY = 0.72;
 const MAX_MATURITY_AGE = 900;
@@ -266,108 +267,12 @@ export class Organism {
 
   draw(ctx) {
     const profile = this.getVisualProfile();
-    const color = speciesColor(this.species);
     const bodyLength = Math.max(this.size * 1.8, profile.body);
     const bodyHeight = Math.max(this.size * 1.05, bodyLength * 0.34);
     const headX = bodyLength * 0.42 + profile.neck * 0.3;
     const headRadius = Math.max(this.size * 0.42, bodyHeight * 0.28);
     const angle = Math.atan2(this.vy, this.vx);
 
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.rotate(angle);
-
-    ctx.fillStyle = color;
-    ctx.strokeStyle = "rgba(6, 14, 24, 0.35)";
-    ctx.lineWidth = 1;
-
-    ctx.beginPath();
-    ctx.moveTo(-bodyLength * 0.45, 0);
-    ctx.quadraticCurveTo(-bodyLength * 0.62, -bodyHeight * 0.18, -bodyLength * 0.45 - profile.tail, 0);
-    ctx.quadraticCurveTo(-bodyLength * 0.62, bodyHeight * 0.18, -bodyLength * 0.45, 0);
-    ctx.closePath();
-    ctx.fill();
-
-    if (profile.stageIndex <= 1) {
-      const finReach = profile.fin * 0.9;
-      ctx.beginPath();
-      ctx.moveTo(-bodyLength * 0.1, -bodyHeight * 0.15);
-      ctx.lineTo(-bodyLength * 0.22, -bodyHeight * 0.45 - finReach);
-      ctx.lineTo(bodyLength * 0.05, -bodyHeight * 0.28);
-      ctx.closePath();
-      ctx.fill();
-      ctx.beginPath();
-      ctx.moveTo(-bodyLength * 0.05, bodyHeight * 0.15);
-      ctx.lineTo(-bodyLength * 0.2, bodyHeight * 0.42 + finReach);
-      ctx.lineTo(bodyLength * 0.08, bodyHeight * 0.26);
-      ctx.closePath();
-      ctx.fill();
-    } else {
-      const legPairs = profile.stageIndex >= 3 ? 2 : 1;
-      for (let i = 0; i < legPairs; i++) {
-        const offset = getLegOffset(legPairs, i, bodyLength);
-        const rear = LEG_REAR_BASE + i * LEG_REAR_OFFSET;
-        const front = LEG_FRONT_BASE + i * LEG_FRONT_OFFSET;
-        const spread = 1.4 + profile.limbs * 0.28;
-        ctx.beginPath();
-        ctx.moveTo(offset, bodyHeight * 0.22);
-        ctx.lineTo(offset - spread, bodyHeight * rear);
-        ctx.lineTo(offset - spread * 0.7, bodyHeight * front);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(offset + bodyLength * 0.08, bodyHeight * 0.18);
-        ctx.lineTo(offset + spread, bodyHeight * rear);
-        ctx.lineTo(offset + spread * 0.75, bodyHeight * front);
-        ctx.stroke();
-      }
-    }
-
-    if (profile.crest > 0.5) {
-      const spikes = Math.max(2, Math.round(profile.crest));
-      for (let i = 0; i < spikes; i++) {
-        const ratio = spikes === 1 ? 0.5 : i / (spikes - 1);
-        const x = -bodyLength * 0.2 + ratio * bodyLength * 0.65;
-        const height = profile.crest * (0.45 + ratio * 0.2);
-        ctx.beginPath();
-        ctx.moveTo(x - 0.9, -bodyHeight * 0.3);
-        ctx.lineTo(x, -bodyHeight * 0.45 - height);
-        ctx.lineTo(x + 0.9, -bodyHeight * 0.3);
-        ctx.closePath();
-        ctx.fill();
-      }
-    }
-
-    if (profile.stageIndex >= WING_RENDERING_STAGE || profile.wing > 1.4) {
-      const wingSpan = profile.wing + bodyLength * 0.2;
-      ctx.globalAlpha = 0.35;
-      ctx.beginPath();
-      ctx.moveTo(-bodyLength * 0.05, -bodyHeight * 0.08);
-      ctx.lineTo(-bodyLength * 0.35, -bodyHeight * 0.82 - wingSpan * 0.35);
-      ctx.lineTo(bodyLength * 0.1, -bodyHeight * 0.3);
-      ctx.closePath();
-      ctx.fill();
-      ctx.beginPath();
-      ctx.moveTo(0, -bodyHeight * 0.02);
-      ctx.lineTo(bodyLength * 0.38, -bodyHeight * 0.74 - wingSpan * 0.28);
-      ctx.lineTo(bodyLength * 0.16, -bodyHeight * 0.24);
-      ctx.closePath();
-      ctx.fill();
-      ctx.globalAlpha = 1;
-    }
-
-    ctx.beginPath();
-    ctx.ellipse(0, 0, bodyLength * 0.5, bodyHeight * 0.5, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.ellipse(headX, -bodyHeight * 0.06, headRadius * 1.05, headRadius * 0.82, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#f4fbff";
-    ctx.beginPath();
-    ctx.arc(headX + headRadius * 0.2, -bodyHeight * 0.12, Math.max(MIN_EYE_RADIUS, headRadius * 0.18), 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
+    drawEnhancedOrganism(ctx, this, profile, bodyLength, bodyHeight, headX, headRadius, angle);
   }
 }
