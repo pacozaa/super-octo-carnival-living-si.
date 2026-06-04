@@ -7,6 +7,7 @@ const ctx = canvas.getContext("2d");
 const speedSelect = document.getElementById("speed");
 const pauseBtn = document.getElementById("pause");
 const resetBtn = document.getElementById("reset");
+const apocalypseBtn = document.getElementById("apocalypse");
 const statsEl = document.getElementById("stats");
 const detailsEl = document.getElementById("details");
 const tooltipEl = document.getElementById("species-tooltip");
@@ -15,7 +16,7 @@ const tooltipEl = document.getElementById("species-tooltip");
 const simulation = new Simulation();
 
 // Setup UI controls
-setupUI(simulation, speedSelect, pauseBtn, resetBtn);
+setupUI(simulation, speedSelect, pauseBtn, resetBtn, apocalypseBtn);
 setupTooltip(canvas, simulation, tooltipEl);
 
 // Main animation loop
