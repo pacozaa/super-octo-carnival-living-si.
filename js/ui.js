@@ -1,4 +1,5 @@
 // UI setup and event handling
+import { updateConfig } from './config.js';
 
 export const setupUI = (simulation, speedSelect, pauseBtn, resetBtn, apocalypseBtn) => {
   pauseBtn.addEventListener("click", () => {
@@ -14,6 +15,47 @@ export const setupUI = (simulation, speedSelect, pauseBtn, resetBtn, apocalypseB
   apocalypseBtn.addEventListener("click", () => {
     simulation.triggerApocalypse();
   });
+};
+
+export const setupSettings = () => {
+  const panel = document.getElementById('settings-panel');
+  const toggle = document.getElementById('settings-toggle');
+  
+  // Toggle settings panel
+  toggle.addEventListener('click', () => {
+    panel.classList.toggle('collapsed');
+  });
+  
+  // Setup config input handlers
+  const configMap = {
+    'base-organisms': 'BASE_ORGANISMS',
+    'max-organisms': 'MAX_ORGANISMS',
+    'reproduction-energy': 'REPRODUCTION_ENERGY',
+    'reproduction-cost': 'REPRODUCTION_COST',
+    'tick-damage': 'TICK_DAMAGE',
+    'movement-speed': 'MOVEMENT_SPEED_MULTIPLIER',
+    'max-hunters': 'MAX_HUNTERS',
+    'hunter-spawn-interval': 'HUNTER_SPAWN_INTERVAL',
+    'min-pop-hunter': 'MIN_POPULATION_FOR_HUNTER_SPAWN',
+    'hunter-min-speed': 'HUNTER_MIN_SPEED',
+    'hunter-max-speed': 'HUNTER_MAX_SPEED',
+    'hunter-base-drain': 'HUNTER_BASE_DRAIN',
+    'prey-size-weight': 'PREY_SIZE_SCORE_WEIGHT',
+    'apocalypse-min': 'APOCALYPSE_MIN_INTERVAL',
+    'apocalypse-max': 'APOCALYPSE_MAX_INTERVAL'
+  };
+  
+  for (const [inputId, configKey] of Object.entries(configMap)) {
+    const input = document.getElementById(inputId);
+    if (input) {
+      input.addEventListener('input', (e) => {
+        const value = parseFloat(e.target.value);
+        if (!isNaN(value)) {
+          updateConfig(configKey, value);
+        }
+      });
+    }
+  }
 };
 
 export const updateStats = (simulation, statsEl, detailsEl) => {

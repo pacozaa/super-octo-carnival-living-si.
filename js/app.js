@@ -1,5 +1,5 @@
 import { Simulation } from './simulation.js';
-import { setupUI, updateStats, setupTooltip } from './ui.js';
+import { setupUI, updateStats, setupTooltip, setupSettings } from './ui.js';
 
 // Get DOM elements
 const canvas = document.getElementById("world");
@@ -18,6 +18,7 @@ const simulation = new Simulation();
 // Setup UI controls
 setupUI(simulation, speedSelect, pauseBtn, resetBtn, apocalypseBtn);
 setupTooltip(canvas, simulation, tooltipEl);
+setupSettings();
 
 // Main animation loop
 function frame() {
