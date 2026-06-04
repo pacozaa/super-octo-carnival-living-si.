@@ -33,8 +33,8 @@ export class Hunter {
     this.vx /= norm;
     this.vy /= norm;
 
-    this.x = clamp(this.x + this.vx * this.speed, 1, WORLD_WIDTH - 1);
-    this.y = clamp(this.y + this.vy * this.speed, 1, WORLD_HEIGHT - 1);
+    this.x = clamp(this.x + this.vx * this.speed * 0.5, 1, WORLD_WIDTH - 1);
+    this.y = clamp(this.y + this.vy * this.speed * 0.5, 1, WORLD_HEIGHT - 1);
     if (this.x <= 1 || this.x >= WORLD_WIDTH - 1) this.vx *= -1;
     if (this.y <= 1 || this.y >= WORLD_HEIGHT - 1) this.vy *= -1;
 

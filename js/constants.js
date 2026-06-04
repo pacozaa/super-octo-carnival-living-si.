@@ -11,7 +11,7 @@ export const MAX_ORGANISMS = 1521;
 
 // Organism traits and behavior
 export const REPRODUCTION_ENERGY = 120;
-export const REPRODUCTION_COST = 50;
+export const REPRODUCTION_COST = 70;
 export const TICK_DAMAGE = 0.22;
 export const ORGANISM_MIN_SAFETY_RADIUS = 52;
 export const SAFETY_RADIUS_VISION_FACTOR = 0.95;
@@ -34,7 +34,7 @@ export const HUNTER_BASE_DRAIN = 28;
 export const HUNTER_SIZE_DRAIN_FACTOR = 1;
 
 // Hunting mechanics
-export const PREY_SIZE_SCORE_WEIGHT = 12;
+export const PREY_SIZE_SCORE_WEIGHT = 14;
 export const MIN_PREY_DISTANCE = 10;
 
 // Climate events
