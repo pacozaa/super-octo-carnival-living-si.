@@ -77,12 +77,13 @@ const drawFormPattern = (ctx, pattern, bodyLength, bodyHeight, color, isDark, ac
       }
       break;
     case 'rough':
-      // Draw rough/bumpy texture
+      // Draw rough/bumpy texture with deterministic variation
       for (let i = 0; i < 12; i++) {
         const x = (Math.sin(i * 0.5) * bodyLength * 0.4);
         const y = (Math.cos(i * 0.5) * bodyHeight * 0.35);
+        const sizeVariation = 0.8 + Math.abs(Math.sin(i * 1.7)) * 0.4;
         ctx.beginPath();
-        ctx.arc(x, y, 0.8 + Math.random(), 0, Math.PI * 2);
+        ctx.arc(x, y, sizeVariation, 0, Math.PI * 2);
         ctx.fill();
       }
       break;
@@ -136,22 +137,6 @@ const drawFormPattern = (ctx, pattern, bodyLength, bodyHeight, color, isDark, ac
       }
       break;
   }
-};
-
-/**
- * Get complementary/accent color based on primary color for visual contrast
- */
-const getAccentColor = (rgb) => {
-  // Create a complementary color for better contrast
-  const r = Math.max(0, Math.min(255, 255 - rgb.r));
-  const g = Math.max(0, Math.min(255, 255 - rgb.g));
-  const b = Math.max(0, Math.min(255, 255 - rgb.b));
-  // Return darker version of complement for better visual contrast
-  return {
-    r: Math.floor(r * 0.6),
-    g: Math.floor(g * 0.6),
-    b: Math.floor(b * 0.6)
-  };
 };
 
 /**
@@ -459,7 +444,9 @@ export const drawEnhancedHunter = (ctx, hunter) => {
 };
 
 /**
- * Alternative style: More aggressive predator with sharp features
+ * Alternative hunter drawing style: More aggressive predator with sharp features.
+ * Currently unused but kept as an alternative rendering option that can be swapped
+ * with drawEnhancedHunter for different visual variations of hunter creatures.
  */
 export const drawAggressiveHunter = (ctx, hunter) => {
   ctx.save();
