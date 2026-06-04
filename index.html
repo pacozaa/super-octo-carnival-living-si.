@@ -170,10 +170,10 @@
   </style>
 </head>
 <body>
-  <h1>Living Simulator</h1>
-  <div class="controls">
+  <h1 data-testid="app-title">Living Simulator</h1>
+  <div class="controls" data-testid="controls-panel">
     <label for="speed">Speed</label>
-    <select id="speed">
+    <select id="speed" data-testid="speed-select">
       <option value="1">1x</option>
       <option value="2">2x</option>
       <option value="5">5x</option>
@@ -182,80 +182,80 @@
       <option value="40">40x</option>
       <option value="80">80x</option>
     </select>
-    <button id="pause">Pause</button>
-    <button id="reset">Reset</button>
-    <button id="apocalypse">Apocalypse</button>
-    <a class="link-btn" href="./help.html">Stats &amp; graphics help</a>
+    <button id="pause" data-testid="pause-button">Pause</button>
+    <button id="reset" data-testid="reset-button">Reset</button>
+    <button id="apocalypse" data-testid="apocalypse-button">Apocalypse</button>
+    <a class="link-btn" href="./help.html" data-testid="help-link">Stats &amp; graphics help</a>
   </div>
-  <div id="stats"></div>
-  <div id="details"></div>
-  <div class="settings-panel" id="settings-panel">
-    <h3 id="settings-toggle">Simulation Settings</h3>
-    <div class="settings-grid">
+  <div id="stats" data-testid="stats-display"></div>
+  <div id="details" data-testid="details-display"></div>
+  <div class="settings-panel" id="settings-panel" data-testid="settings-panel">
+    <h3 id="settings-toggle" data-testid="settings-toggle">Simulation Settings</h3>
+    <div class="settings-grid" data-testid="settings-grid">
       <div class="setting-item">
         <label for="base-organisms">Base Organisms</label>
-        <input type="number" id="base-organisms" value="48" min="1" max="200" step="1">
+        <input type="number" id="base-organisms" value="48" min="1" max="200" step="1" data-testid="base-organisms-input">
       </div>
       <div class="setting-item">
         <label for="max-organisms">Max Organisms</label>
-        <input type="number" id="max-organisms" value="1521" min="100" max="5000" step="1">
+        <input type="number" id="max-organisms" value="1521" min="100" max="5000" step="1" data-testid="max-organisms-input">
       </div>
       <div class="setting-item">
         <label for="reproduction-energy">Reproduction Energy</label>
-        <input type="number" id="reproduction-energy" value="120" min="50" max="300" step="1">
+        <input type="number" id="reproduction-energy" value="120" min="50" max="300" step="1" data-testid="reproduction-energy-input">
       </div>
       <div class="setting-item">
         <label for="reproduction-cost">Reproduction Cost</label>
-        <input type="number" id="reproduction-cost" value="70" min="10" max="150" step="1">
+        <input type="number" id="reproduction-cost" value="70" min="10" max="150" step="1" data-testid="reproduction-cost-input">
       </div>
       <div class="setting-item">
         <label for="tick-damage">Tick Damage</label>
-        <input type="number" id="tick-damage" value="0.22" min="0.01" max="1" step="0.01">
+        <input type="number" id="tick-damage" value="0.22" min="0.01" max="1" step="0.01" data-testid="tick-damage-input">
       </div>
       <div class="setting-item">
         <label for="movement-speed">Movement Speed Multiplier</label>
-        <input type="number" id="movement-speed" value="0.5" min="0.1" max="2" step="0.1">
+        <input type="number" id="movement-speed" value="0.5" min="0.1" max="2" step="0.1" data-testid="movement-speed-input">
       </div>
       <div class="setting-item">
         <label for="max-hunters">Max Hunters</label>
-        <input type="number" id="max-hunters" value="25" min="1" max="100" step="1">
+        <input type="number" id="max-hunters" value="25" min="1" max="100" step="1" data-testid="max-hunters-input">
       </div>
       <div class="setting-item">
         <label for="hunter-spawn-interval">Hunter Spawn Interval</label>
-        <input type="number" id="hunter-spawn-interval" value="720" min="100" max="2000" step="10">
+        <input type="number" id="hunter-spawn-interval" value="720" min="100" max="2000" step="10" data-testid="hunter-spawn-interval-input">
       </div>
       <div class="setting-item">
         <label for="min-pop-hunter">Min Pop for Hunter Spawn</label>
-        <input type="number" id="min-pop-hunter" value="85" min="10" max="500" step="1">
+        <input type="number" id="min-pop-hunter" value="85" min="10" max="500" step="1" data-testid="min-pop-hunter-input">
       </div>
       <div class="setting-item">
         <label for="hunter-min-speed">Hunter Min Speed</label>
-        <input type="number" id="hunter-min-speed" value="1.05" min="0.5" max="3" step="0.05">
+        <input type="number" id="hunter-min-speed" value="1.05" min="0.5" max="3" step="0.05" data-testid="hunter-min-speed-input">
       </div>
       <div class="setting-item">
         <label for="hunter-max-speed">Hunter Max Speed</label>
-        <input type="number" id="hunter-max-speed" value="1.75" min="0.5" max="5" step="0.05">
+        <input type="number" id="hunter-max-speed" value="1.75" min="0.5" max="5" step="0.05" data-testid="hunter-max-speed-input">
       </div>
       <div class="setting-item">
         <label for="hunter-base-drain">Hunter Base Drain</label>
-        <input type="number" id="hunter-base-drain" value="28" min="5" max="100" step="1">
+        <input type="number" id="hunter-base-drain" value="28" min="5" max="100" step="1" data-testid="hunter-base-drain-input">
       </div>
       <div class="setting-item">
         <label for="prey-size-weight">Prey Size Score Weight</label>
-        <input type="number" id="prey-size-weight" value="14" min="1" max="50" step="1">
+        <input type="number" id="prey-size-weight" value="14" min="1" max="50" step="1" data-testid="prey-size-weight-input">
       </div>
       <div class="setting-item">
         <label for="apocalypse-min">Apocalypse Min Interval</label>
-        <input type="number" id="apocalypse-min" value="1800" min="500" max="5000" step="100">
+        <input type="number" id="apocalypse-min" value="1800" min="500" max="5000" step="100" data-testid="apocalypse-min-input">
       </div>
       <div class="setting-item">
         <label for="apocalypse-max">Apocalypse Max Interval</label>
-        <input type="number" id="apocalypse-max" value="3500" min="1000" max="10000" step="100">
+        <input type="number" id="apocalypse-max" value="3500" min="1000" max="10000" step="100" data-testid="apocalypse-max-input">
       </div>
     </div>
   </div>
-  <canvas id="world" width="900" height="560"></canvas>
-  <div id="species-tooltip"></div>
+  <canvas id="world" width="900" height="560" data-testid="simulation-canvas"></canvas>
+  <div id="species-tooltip" data-testid="species-tooltip"></div>
   <script type="module" src="./js/app.js"></script>
 </body>
 </html>
